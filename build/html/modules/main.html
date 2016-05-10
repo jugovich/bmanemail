@@ -1,0 +1,191 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>main — main &mdash; BM_email v.1 documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="BM_email v.1 documentation" href="../index.html" />
+    <link rel="next" title="arff — arff loader" href="../cardsharp/arff.html" />
+    <link rel="prev" title="bmine — bmine" href="bmine.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../cardsharp/arff.html" title="arff — arff loader"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="bmine.html" title="bmine — bmine"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">BM_email v.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-main">
+<span id="main-main"></span><h1><a class="reference internal" href="#module-main" title="main"><tt class="xref py py-mod docutils literal"><span class="pre">main</span></tt></a> &#8212; main<a class="headerlink" href="#module-main" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="main.build_model">
+<tt class="descclassname">main.</tt><tt class="descname">build_model</tt><big>(</big><em>training_file</em>, <em>model_dir</em><big>)</big><a class="reference internal" href="../_modules/main.html#build_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#main.build_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a C4.5 classification model (weka J48 classifier) using a supplied arff training file 
+and outputs the completed model to supplied model_dir. The weka.classifiers.trees.J48 is called
+using pythons built-in subprocess module by calling the java process + a list of command line arguements.
+See <a class="reference external" href="http://docs.python.org/library/subprocess.html">http://docs.python.org/library/subprocess.html</a></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="main.classify">
+<tt class="descclassname">main.</tt><tt class="descname">classify</tt><big>(</big><em>test_file</em>, <em>model_file</em>, <em>save_file</em>, <em>predict_var_name</em><big>)</big><a class="reference internal" href="../_modules/main.html#classify"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#main.classify" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply a C4.5 classification model to the test_file using supplied model_file, to predict variable at 
+index of predict_var_name. The predictions are captured using subprocess.check_output See <a class="reference external" href="http://docs.python.org/library/subprocess.html">http://docs.python.org/library/subprocess.html</a>,
+These predicitons are parsed and then stored to an output file (save_file). The output file contains the processed
+dataset information with predicted values and path_id appended.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="main.gen_sample">
+<tt class="descclassname">main.</tt><tt class="descname">gen_sample</tt><big>(</big><em>data_path</em>, <em>save_path</em>, <em>sample</em><big>)</big><a class="reference internal" href="../_modules/main.html#gen_sample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#main.gen_sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>This module takes a dataset (data_path) and saves a sample of it to a new dataset (save_path).
+This module was used to gernate the training and validation samples for the ect584 project.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="main.run_clean">
+<tt class="descclassname">main.</tt><tt class="descname">run_clean</tt><big>(</big><em>data_dir</em>, <em>save_dir</em>, <em>filename</em>, <em>format</em><big>)</big><a class="reference internal" href="../_modules/main.html#run_clean"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#main.run_clean" title="Permalink to this definition">¶</a></dt>
+<dd><p>This module cleans a file (filename, format) at data_dir. This cleaning is necessary to remove unwanted
+information before running process(). The file is saved to save_dir.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="main.run_extract">
+<tt class="descclassname">main.</tt><tt class="descname">run_extract</tt><big>(</big><em>data_dir</em>, <em>save_dir</em>, <em>filename</em>, <em>format</em>, <em>verbose</em><big>)</big><a class="reference internal" href="../_modules/main.html#run_extract"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#main.run_extract" title="Permalink to this definition">¶</a></dt>
+<dd><p>This module takes a data directory pointing where the raw email files are stored in seperate directories
+(one directory for each list), takes a save_dir, filename, and format for saving the extracted raw dataset.
+The module loops over all the email list directories and loops over all the email files in these directories
+calling bmine.extract() on each email. These emails are added to a raw_extract dataset. Specify verbose to see
+all extraction details (this will slow down processing time).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="main.run_process">
+<tt class="descclassname">main.</tt><tt class="descname">run_process</tt><big>(</big><em>data_dir</em>, <em>save_dir</em>, <em>filename</em>, <em>format</em><big>)</big><a class="reference internal" href="../_modules/main.html#run_process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#main.run_process" title="Permalink to this definition">¶</a></dt>
+<dd><p>This module loads a dataset and processes it to produces a processed trainining dataset and test dataset
+in arff format to be used to create a classification model and then apply this module to the test dataset.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="main.run_review_terms">
+<tt class="descclassname">main.</tt><tt class="descname">run_review_terms</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/main.html#run_review_terms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#main.run_review_terms" title="Permalink to this definition">¶</a></dt>
+<dd><p>This module was used to review the terms present in the raw/cleaned datafiles.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="main.run_singleExtract">
+<tt class="descclassname">main.</tt><tt class="descname">run_singleExtract</tt><big>(</big><em>data_dir</em>, <em>save_dir</em><big>)</big><a class="reference internal" href="../_modules/main.html#run_singleExtract"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#main.run_singleExtract" title="Permalink to this definition">¶</a></dt>
+<dd><p>This module can extract a single raw directory, (used for testing purposes).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="main.stage_train">
+<tt class="descclassname">main.</tt><tt class="descname">stage_train</tt><big>(</big><em>data_dir</em>, <em>data_filename</em>, <em>data_format</em>, <em>train_dir</em>, <em>train_filename</em>, <em>train_format</em>, <em>save_dir</em><big>)</big><a class="reference internal" href="../_modules/main.html#stage_train"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#main.stage_train" title="Permalink to this definition">¶</a></dt>
+<dd><p>This module takes a test dataset (data_dir, data_filename, data_format) and adds the predicted event
+values in the coded training dataset (train_dir, train_filename, train_format) and saves the test dataset
+with predicted values added to save_dir.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="main.validate">
+<tt class="descclassname">main.</tt><tt class="descname">validate</tt><big>(</big><em>data_dir</em>, <em>filename</em><big>)</big><a class="reference internal" href="../_modules/main.html#validate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#main.validate" title="Permalink to this definition">¶</a></dt>
+<dd><p>This module compares a dataset that has predicted values to the validation dataset and then outputs statistics
+on the accuracy of the model.</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="bmine.html"
+                        title="previous chapter"><tt class="docutils literal docutils literal"><span class="pre">bmine</span></tt> &#8212; bmine</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../cardsharp/arff.html"
+                        title="next chapter"><tt class="docutils literal docutils literal docutils literal"><span class="pre">arff</span></tt> &#8212; arff loader</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/modules/main.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../cardsharp/arff.html" title="arff — arff loader"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="bmine.html" title="bmine — bmine"
+             >previous</a> |</li>
+        <li><a href="../index.html">BM_email v.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Michael Jugovich.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,14 @@
+1	save the date
+2	come join us
+3	on sale
+4	buy tickets
+5	general admission
+6	date
+7	tickets
+8	admission
+9	\\$\\d+
+10	announcement
+11	fundraiser
+12	party
+13	festival
+14	event

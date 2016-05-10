@@ -1,0 +1,400 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>cardsharp.loaders.arff &mdash; BM_email v.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="BM_email v.1 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">BM_email v.1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for cardsharp.loaders.arff</h1><div class="highlight"><pre>
+<span class="c"># Copyright (c) 2010 NORC</span>
+<span class="c">#</span>
+<span class="c"># Permission is hereby granted, free of charge, to any person obtaining a copy</span>
+<span class="c"># of this software and associated documentation files (the &quot;Software&quot;), to deal</span>
+<span class="c"># in the Software without restriction, including without limitation the rights</span>
+<span class="c"># to use, copy, modify, merge, publish, distribute, sublicense, and/or sell</span>
+<span class="c"># copies of the Software, and to permit persons to whom the Software is</span>
+<span class="c"># furnished to do so, subject to the following conditions:</span>
+<span class="c">#</span>
+<span class="c"># The above copyright notice and this permission notice shall be included in</span>
+<span class="c"># all copies or substantial portions of the Software.</span>
+<span class="c">#</span>
+<span class="c"># THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR</span>
+<span class="c"># IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,</span>
+<span class="c"># FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE</span>
+<span class="c"># AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER</span>
+<span class="c"># LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,</span>
+<span class="c"># OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN</span>
+<span class="c"># THE SOFTWARE.</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">unicode_literals</span><span class="p">,</span> <span class="n">absolute_import</span>
+
+<span class="kn">import</span> <span class="nn">re</span><span class="o">,</span> <span class="nn">codecs</span><span class="o">,</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">chain</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">Loader</span><span class="p">,</span> <span class="n">Saver</span><span class="p">,</span> <span class="n">register</span><span class="p">,</span> <span class="n">FileLoader</span><span class="p">,</span> <span class="n">FileSaver</span>
+<span class="kn">from</span> <span class="nn">..errors</span> <span class="kn">import</span> <span class="n">LoadError</span><span class="p">,</span> <span class="n">SaveError</span>
+<span class="kn">from</span> <span class="nn">..variables</span> <span class="kn">import</span> <span class="n">VariableSpec</span>
+<span class="kn">from</span> <span class="nn">.options</span> <span class="kn">import</span> <span class="n">option</span><span class="p">,</span> <span class="n">saves</span>
+<span class="kn">from</span> <span class="nn">..util</span> <span class="kn">import</span> <span class="n">memoize</span>
+
+<span class="nd">@option</span><span class="p">(</span><span class="n">default</span> <span class="o">=</span> <span class="s">&#39;utf-8&#39;</span><span class="p">)</span>
+<div class="viewcode-block" id="encoding"><a class="viewcode-back" href="../../../cardsharp/arff.html#cardsharp.loaders.arff.encoding">[docs]</a><span class="k">def</span> <span class="nf">encoding</span><span class="p">(</span><span class="n">options</span><span class="p">):</span>
+    <span class="k">pass</span>
+</div>
+<span class="nd">@option</span><span class="p">(</span><span class="n">default</span> <span class="o">=</span> <span class="bp">None</span><span class="p">)</span>
+<div class="viewcode-block" id="dataset"><a class="viewcode-back" href="../../../cardsharp/arff.html#cardsharp.loaders.arff.dataset">[docs]</a><span class="k">def</span> <span class="nf">dataset</span><span class="p">(</span><span class="n">options</span><span class="p">):</span>
+    <span class="k">pass</span>
+</div>
+<span class="nd">@option</span><span class="p">(</span><span class="n">default</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+<div class="viewcode-block" id="escape_eol_chars"><a class="viewcode-back" href="../../../cardsharp/arff.html#cardsharp.loaders.arff.escape_eol_chars">[docs]</a><span class="k">def</span> <span class="nf">escape_eol_chars</span><span class="p">(</span><span class="n">options</span><span class="p">):</span>
+    <span class="k">pass</span>
+</div>
+<span class="sd">&quot;&quot;&quot;class map is a dict where keys are names of nominal variables and values are a complete list of the possible</span>
+<span class="sd">nominal values</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="nd">@saves</span>
+<span class="nd">@option</span><span class="p">(</span><span class="n">default</span> <span class="o">=</span> <span class="p">{})</span>
+<div class="viewcode-block" id="nominal_map"><a class="viewcode-back" href="../../../cardsharp/arff.html#cardsharp.loaders.arff.nominal_map">[docs]</a><span class="k">def</span> <span class="nf">nominal_map</span><span class="p">(</span><span class="n">options</span><span class="p">):</span>
+    <span class="c">#TODO: add error checking to make sure all nominal variables have entry in nominal_map</span>
+    <span class="k">pass</span>
+</div>
+<span class="k">def</span> <span class="nf">_quote</span><span class="p">(</span><span class="n">v</span><span class="p">):</span>
+    <span class="k">return</span> <span class="s">&#39;&quot;&#39;</span> <span class="o">+</span> <span class="n">v</span> <span class="o">+</span> <span class="s">&#39;&quot;&#39;</span> <span class="k">if</span> <span class="s">&#39; &#39;</span> <span class="ow">in</span> <span class="n">v</span> <span class="k">else</span> <span class="n">v</span>
+
+<span class="n">_save_var_map</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;float&#39;</span>    <span class="p">:</span> <span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="nb">repr</span><span class="p">(</span><span class="n">v</span><span class="p">),</span>
+    <span class="s">&#39;date&#39;</span>     <span class="p">:</span> <span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="s">&#39;&quot;</span><span class="si">%04d</span><span class="s">/</span><span class="si">%02d</span><span class="s">/</span><span class="si">%02d</span><span class="s">&quot;&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">v</span><span class="o">.</span><span class="n">month</span><span class="p">,</span> <span class="n">v</span><span class="o">.</span><span class="n">day</span><span class="p">),</span>
+    <span class="s">&#39;datetime&#39;</span> <span class="p">:</span> <span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="s">&#39;&quot;</span><span class="si">%04d</span><span class="s">/</span><span class="si">%02d</span><span class="s">/</span><span class="si">%02d</span><span class="s"> </span><span class="si">%02d</span><span class="s">:</span><span class="si">%02d</span><span class="s">:</span><span class="si">%02d</span><span class="s">&quot;&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">v</span><span class="o">.</span><span class="n">month</span><span class="p">,</span> <span class="n">v</span><span class="o">.</span><span class="n">day</span><span class="p">,</span> <span class="n">v</span><span class="o">.</span><span class="n">hour</span><span class="p">,</span> <span class="n">v</span><span class="o">.</span><span class="n">minute</span><span class="p">,</span> <span class="n">v</span><span class="o">.</span><span class="n">second</span><span class="p">),</span>
+    <span class="s">&#39;time&#39;</span>     <span class="p">:</span> <span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="s">&#39;&quot;</span><span class="si">%02d</span><span class="s">:</span><span class="si">%02d</span><span class="s">:</span><span class="si">%02d</span><span class="s">&quot;&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">hour</span><span class="p">,</span> <span class="n">v</span><span class="o">.</span><span class="n">minute</span><span class="p">,</span> <span class="n">v</span><span class="o">.</span><span class="n">second</span><span class="p">),</span>
+    <span class="s">&#39;integer&#39;</span>  <span class="p">:</span> <span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="nb">repr</span><span class="p">(</span><span class="n">v</span><span class="p">),</span>
+    <span class="s">&#39;decimal&#39;</span>  <span class="p">:</span> <span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="nb">repr</span><span class="p">(</span><span class="n">v</span><span class="p">),</span>
+    <span class="s">&#39;boolean&#39;</span>  <span class="p">:</span> <span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="s">&#39;1&#39;</span> <span class="k">if</span> <span class="n">v</span> <span class="k">else</span> <span class="s">&#39;0&#39;</span><span class="p">,</span>
+    <span class="s">&#39;binary&#39;</span>   <span class="p">:</span> <span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="n">_quote</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s">&#39;base64&#39;</span><span class="p">)),</span>
+<span class="p">}</span>
+
+<span class="n">_save_var_info</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;float&#39;</span>    <span class="p">:</span> <span class="s">&#39;numeric&#39;</span><span class="p">,</span>
+    <span class="s">&#39;date&#39;</span>     <span class="p">:</span> <span class="s">&#39;date &quot;yyyy-MM-dd&quot;&#39;</span><span class="p">,</span> 
+    <span class="s">&#39;datetime&#39;</span> <span class="p">:</span> <span class="s">&#39;date &quot;yyyy-MM-dd</span><span class="se">\&#39;</span><span class="s">T</span><span class="se">\&#39;</span><span class="s">HH:mm:ss&quot;&#39;</span><span class="p">,</span> 
+    <span class="s">&#39;time&#39;</span>     <span class="p">:</span> <span class="s">&#39;date &quot;</span><span class="se">\&#39;</span><span class="s">T</span><span class="se">\&#39;</span><span class="s">HH:mm:ss&quot;&#39;</span><span class="p">,</span> 
+    <span class="s">&#39;integer&#39;</span>  <span class="p">:</span> <span class="s">&#39;numeric&#39;</span><span class="p">,</span> 
+    <span class="s">&#39;decimal&#39;</span>  <span class="p">:</span> <span class="s">&#39;numeric&#39;</span><span class="p">,</span> 
+    <span class="s">&#39;boolean&#39;</span>  <span class="p">:</span> <span class="s">&#39;{1 0}&#39;</span><span class="p">,</span>
+    <span class="s">&#39;binary&#39;</span>   <span class="p">:</span> <span class="s">&#39;string&#39;</span><span class="p">,</span>
+    <span class="s">&#39;string&#39;</span>   <span class="p">:</span> <span class="s">&#39;string&#39;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">_save_var_map</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+    <span class="n">_save_var_map</span><span class="p">[</span><span class="n">f</span><span class="p">]</span> <span class="o">=</span> <span class="n">memoize</span><span class="p">(</span><span class="n">_save_var_map</span><span class="p">[</span><span class="n">f</span><span class="p">])</span>
+
+<span class="n">_save_var_map</span><span class="p">[</span><span class="s">&#39;nominal&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="n">_quote</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+<span class="n">_save_var_map</span><span class="p">[</span><span class="s">&#39;string&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="n">_quote</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> 
+
+<span class="k">def</span> <span class="nf">_var_to_text</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>        
+    <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s">&#39;&#39;</span>
+    
+    <span class="k">return</span> <span class="n">_save_var_map</span><span class="p">[</span><span class="n">v</span><span class="o">.</span><span class="n">format</span><span class="o">.</span><span class="n">key</span><span class="p">](</span><span class="n">value</span><span class="p">)</span>
+
+<span class="c">#def _conv_dt(pat, func):</span>
+<span class="c">#    &quot;&quot;&quot; Creates the date conversion function...</span>
+<span class="c">#    &quot;&quot;&quot;</span>
+<span class="c">#    pat = re.compile(pat)</span>
+<span class="c">#    def _exec(value):</span>
+<span class="c">#        m = pat.match(value)</span>
+<span class="c">#        if m:</span>
+<span class="c">#            return func(*(int(i) for i in m.groups()))</span>
+<span class="c">#        else:</span>
+<span class="c">#            raise LoadError(&#39;Unrecognized format: %r&#39; % value)</span>
+<span class="c">#        </span>
+<span class="c">#    return _exec</span>
+
+<span class="n">_load_var_map</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;numeric&#39;</span> <span class="p">:</span> <span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">),</span>
+    <span class="s">&#39;integer&#39;</span> <span class="p">:</span> <span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">),</span>
+    <span class="s">&#39;real&#39;</span>    <span class="p">:</span> <span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">),</span>
+    <span class="s">&#39;float&#39;</span>   <span class="p">:</span> <span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">),</span>
+    <span class="c">#&#39;date&#39; : _conv_dt(r&#39;^\s*(\d{4})/(\d{2})/(\d{2})\s*$&#39;, datetime.date),</span>
+    <span class="c">#&#39;datetime&#39; : _conv_dt(r&#39;^\s*(\d{4})/(\d{2})/(\d{2}) (\d{2}):(\d{2}):(\d{2})\s*$&#39;, datetime.datetime),</span>
+    <span class="c">#&#39;time&#39; : _conv_dt(r&#39;^\s*(\d{2}):(\d{2}):(\d{2})\s*$&#39;, datetime.time),</span>
+    <span class="c">#&#39;integer&#39; : lambda v: int(v),</span>
+    <span class="c">#&#39;decimal&#39; : lambda v: Decimal(v),</span>
+    <span class="c">#&#39;boolean&#39; : lambda v: True if v in (&#39;1&#39;, &#39;true&#39;, &#39;True&#39;) else False,</span>
+    <span class="c">#&#39;binary&#39; : lambda v: bytes(v.decode(&#39;base64&#39;))</span>
+<span class="p">}</span>
+
+<span class="n">_var_info_map</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;numeric&#39;</span> <span class="p">:</span> <span class="s">&#39;float&#39;</span><span class="p">,</span>
+    <span class="s">&#39;integer&#39;</span> <span class="p">:</span> <span class="s">&#39;float&#39;</span><span class="p">,</span>
+    <span class="s">&#39;real&#39;</span>    <span class="p">:</span> <span class="s">&#39;float&#39;</span><span class="p">,</span>
+    <span class="s">&#39;string&#39;</span>  <span class="p">:</span> <span class="s">&#39;string&#39;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">_load_var_map</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+    <span class="n">_load_var_map</span><span class="p">[</span><span class="n">f</span><span class="p">]</span> <span class="o">=</span> <span class="n">memoize</span><span class="p">(</span><span class="n">_load_var_map</span><span class="p">[</span><span class="n">f</span><span class="p">])</span>
+
+<span class="n">_load_var_map</span><span class="p">[</span><span class="s">&#39;string&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="n">v</span>
+<span class="n">_load_var_map</span><span class="p">[</span><span class="s">&#39;nominal&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="n">v</span>
+
+<div class="viewcode-block" id="text_to_var"><a class="viewcode-back" href="../../../cardsharp/arff.html#cardsharp.loaders.arff.text_to_var">[docs]</a><span class="k">def</span> <span class="nf">text_to_var</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="s">&#39;&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">None</span>
+    
+    <span class="k">return</span> <span class="n">_load_var_map</span><span class="p">[</span><span class="n">v</span><span class="o">.</span><span class="n">format</span><span class="o">.</span><span class="n">key</span><span class="p">](</span><span class="n">value</span><span class="p">)</span>
+</div>
+<span class="k">def</span> <span class="nf">_get_load_iterators</span><span class="p">(</span><span class="n">options</span><span class="p">):</span>
+    <span class="n">field_delimiter</span> <span class="o">=</span> <span class="s">&#39;,&#39;</span>
+    <span class="n">line_delimiter</span> <span class="o">=</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span>
+    <span class="n">escape_char</span>    <span class="o">=</span> <span class="s">&#39;</span><span class="se">\\</span><span class="s">&#39;</span>
+    
+    <span class="n">line_pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&#39;(?s)^(.*?)&#39;</span> <span class="o">+</span> <span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">line_delimiter</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39;(.*)$&#39;</span><span class="p">)</span>
+    <span class="n">field_pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&#39;(?s)^(.*?)&#39;</span> <span class="o">+</span> <span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">field_delimiter</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39;(.*)$&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_line_iter</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+        <span class="nb">buffer</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+        <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+            <span class="nb">next</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">1024</span> <span class="o">*</span> <span class="mi">4</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">next</span> <span class="o">==</span> <span class="s">&#39;&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">buffer</span><span class="p">:</span>
+                    <span class="k">yield</span> <span class="nb">buffer</span>
+                    
+                <span class="k">return</span>
+            
+            <span class="nb">buffer</span> <span class="o">+=</span> <span class="nb">next</span>
+            <span class="k">while</span> <span class="nb">buffer</span><span class="p">:</span>
+                <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">line_pattern</span><span class="p">,</span> <span class="nb">buffer</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
+                    <span class="k">yield</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                    <span class="nb">buffer</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">break</span>
+
+    <span class="n">unescape_map</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">options</span><span class="p">[</span><span class="s">&#39;escape_eol_chars&#39;</span><span class="p">]:</span>
+        <span class="n">unescape_map</span><span class="p">[</span><span class="s">&#39;n&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span>
+        <span class="n">unescape_map</span><span class="p">[</span><span class="s">&#39;t&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;</span><span class="se">\t</span><span class="s">&#39;</span>
+        <span class="n">unescape_map</span><span class="p">[</span><span class="s">&#39;r&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;</span><span class="se">\r</span><span class="s">&#39;</span>
+
+    <span class="k">def</span> <span class="nf">_unescape</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+        <span class="n">in_escape</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">in_escape</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">unescape_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span>
+                <span class="n">in_escape</span> <span class="o">=</span> <span class="bp">False</span>
+            <span class="k">elif</span> <span class="n">c</span> <span class="o">==</span> <span class="n">escape_char</span><span class="p">:</span>
+                <span class="n">in_escape</span> <span class="o">=</span> <span class="bp">True</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">c</span>
+                
+    <span class="k">def</span> <span class="nf">_field_iter</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+        <span class="k">while</span> <span class="n">s</span><span class="p">:</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">field_pattern</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="s">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+                <span class="n">s</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="s">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_unescape</span><span class="p">(</span><span class="n">s</span><span class="p">))</span>
+                <span class="k">return</span>
+                
+    <span class="k">return</span> <span class="n">_line_iter</span><span class="p">,</span> <span class="n">_field_iter</span>
+
+<span class="c">#currently does not support relational instances or dates</span>
+<span class="k">def</span> <span class="nf">_get_var</span><span class="p">(</span><span class="n">var_info</span><span class="p">):</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">var_info</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="c">#format = _var_info_map[var_info[1].replace(&#39;\r&#39;, &#39;&#39;)]</span>
+    <span class="k">if</span> <span class="s">&#39;{&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">var_info</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">and</span> <span class="n">var_info</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\r</span><span class="s">&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">)</span> <span class="ow">in</span> <span class="n">_var_info_map</span><span class="p">:</span>
+        <span class="n">format</span> <span class="o">=</span> <span class="n">_var_info_map</span><span class="p">[</span><span class="n">var_info</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\r</span><span class="s">&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">)]</span>
+    <span class="k">elif</span> <span class="n">var_info</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;{&#39;</span><span class="p">):</span>
+        <span class="n">format</span> <span class="o">=</span> <span class="s">&#39;nominal&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">LoadError</span><span class="p">(</span><span class="s">&quot;Unsupported Variable Format: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">var_info</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    
+    <span class="k">return</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">format</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">_get_format</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">var</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">format</span><span class="p">)</span> <span class="o">==</span> <span class="s">&#39;nominal&#39;</span> <span class="ow">and</span> <span class="n">var</span><span class="o">.</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">opt</span><span class="p">[</span><span class="s">&#39;nominal_map&#39;</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="n">SaveError</span><span class="p">(</span><span class="s">&#39;Unable to save nominal variable: </span><span class="si">%s</span><span class="s">, because it has no entry in nominal_map option&#39;</span> <span class="o">%</span> <span class="n">var</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">format</span><span class="p">)</span> <span class="o">==</span> <span class="s">&#39;nominal&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s">&#39;{&#39;</span> <span class="o">+</span> <span class="s">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">opt</span><span class="p">[</span><span class="s">&#39;nominal_map&#39;</span><span class="p">][</span><span class="n">var</span><span class="o">.</span><span class="n">name</span><span class="p">])</span> <span class="o">+</span> <span class="s">&#39;}&#39;</span>  
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_save_var_info</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">format</span><span class="p">)]</span>
+           
+<div class="viewcode-block" id="ArffHandler"><a class="viewcode-back" href="../../../cardsharp/arff.html#cardsharp.loaders.arff.ArffHandler">[docs]</a><span class="k">class</span> <span class="nc">ArffHandler</span><span class="p">(</span><span class="n">FileLoader</span><span class="p">,</span> <span class="n">FileSaver</span><span class="p">):</span>
+    <span class="nb">id</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;cardsharp.loaders.arff&#39;</span><span class="p">,)</span>
+    <span class="n">formats</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;arff&#39;</span><span class="p">,)</span>
+    
+<div class="viewcode-block" id="ArffHandler.list_datasets"><a class="viewcode-back" href="../../../cardsharp/arff.html#cardsharp.loaders.arff.ArffHandler.list_datasets">[docs]</a>    <span class="k">def</span> <span class="nf">list_datasets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">None</span>
+    </div>
+<div class="viewcode-block" id="ArffHandler.get_dataset_info"><a class="viewcode-back" href="../../../cardsharp/arff.html#cardsharp.loaders.arff.ArffHandler.get_dataset_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_dataset_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
+        <span class="n">_line_iter</span><span class="p">,</span> <span class="n">_field_iter</span> <span class="o">=</span> <span class="n">_get_load_iterators</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
+        <span class="nb">vars</span> <span class="o">=</span> <span class="p">[]</span>
+        
+        <span class="k">with</span> <span class="n">codecs</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">options</span><span class="p">[</span><span class="s">&#39;filename&#39;</span><span class="p">],</span> <span class="s">&#39;rb&#39;</span><span class="p">,</span> <span class="n">options</span><span class="p">[</span><span class="s">&#39;encoding&#39;</span><span class="p">])</span> <span class="k">as</span> <span class="n">in_stream</span><span class="p">:</span>    
+            <span class="n">f</span> <span class="o">=</span> <span class="n">_line_iter</span><span class="p">(</span><span class="n">in_stream</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">if</span> <span class="n">line</span> <span class="k">else</span> <span class="s">&#39;&#39;</span>
+                <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;@attribute&#39;</span><span class="p">):</span>
+                    <span class="n">var</span> <span class="o">=</span> <span class="n">_get_var</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">&#39;@attribute (.+?) (.+)&#39;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span><span class="o">.</span><span class="n">groups</span><span class="p">())</span>
+                    <span class="nb">vars</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;@relation&#39;</span><span class="p">):</span>
+                    <span class="n">options</span><span class="p">[</span><span class="s">&#39;dataset&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;@relation &#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;@data&#39;</span><span class="p">):</span>
+                    <span class="k">break</span>
+                    <span class="c">#can add mark to get cases if desired</span>
+            <span class="n">options</span><span class="p">[</span><span class="s">&#39;_variables&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">VariableSpec</span><span class="p">(</span><span class="nb">vars</span><span class="p">)</span>
+                
+        
+        <span class="n">options</span><span class="p">[</span><span class="s">&#39;_cases&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="n">options</span><span class="p">[</span><span class="s">&#39;format&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;arff&#39;</span>
+</div>
+<div class="viewcode-block" id="ArffHandler.can_load"><a class="viewcode-back" href="../../../cardsharp/arff.html#cardsharp.loaders.arff.ArffHandler.can_load">[docs]</a>    <span class="k">def</span> <span class="nf">can_load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;format&#39;</span><span class="p">)</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;arff&#39;</span><span class="p">,):</span>
+            <span class="k">return</span> <span class="mi">5000</span>
+
+        <span class="n">f</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;filename&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">f</span> <span class="ow">and</span> <span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&#39;.arff&#39;</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="mi">5000</span>
+
+        <span class="k">return</span> <span class="mi">0</span>
+                </div>
+<div class="viewcode-block" id="ArffHandler.loader"><a class="viewcode-back" href="../../../cardsharp/arff.html#cardsharp.loaders.arff.ArffHandler.loader">[docs]</a>    <span class="k">class</span> <span class="nc">loader</span><span class="p">(</span><span class="n">Loader</span><span class="p">):</span>
+<div class="viewcode-block" id="ArffHandler.loader.rows"><a class="viewcode-back" href="../../../cardsharp/arff.html#cardsharp.loaders.arff.ArffHandler.loader.rows">[docs]</a>        <span class="k">def</span> <span class="nf">rows</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>   
+            <span class="n">opt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span>
+            <span class="n">_line_iter</span><span class="p">,</span> <span class="n">_field_iter</span> <span class="o">=</span> <span class="n">_get_load_iterators</span><span class="p">(</span><span class="n">opt</span><span class="p">)</span>
+
+            <span class="k">with</span> <span class="n">codecs</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">opt</span><span class="p">[</span><span class="s">&#39;filename&#39;</span><span class="p">],</span> <span class="s">&#39;rb&#39;</span><span class="p">,</span> <span class="n">opt</span><span class="p">[</span><span class="s">&#39;encoding&#39;</span><span class="p">])</span> <span class="k">as</span> <span class="n">in_stream</span><span class="p">:</span>
+                <span class="n">f</span> <span class="o">=</span> <span class="n">_line_iter</span><span class="p">(</span><span class="n">in_stream</span><span class="p">)</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="bp">False</span> 
+                <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">opt</span><span class="p">[</span><span class="s">&#39;_filter&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+                    <span class="n">line</span> <span class="o">=</span> <span class="n">line</span> <span class="k">if</span> <span class="n">line</span> <span class="k">else</span> <span class="s">&#39;&#39;</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">data</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;@data&#39;</span><span class="p">):</span>
+                            <span class="n">data</span> <span class="o">=</span> <span class="bp">True</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">line</span><span class="p">:</span>
+                            <span class="k">yield</span> <span class="p">(</span><span class="n">text_to_var</span><span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">var</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">opt</span><span class="p">[</span><span class="s">&#39;_variables&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">pair_filter</span><span class="p">(</span><span class="n">_field_iter</span><span class="p">(</span><span class="n">line</span><span class="p">)))</span>
+                    </div></div>
+<div class="viewcode-block" id="ArffHandler.can_save"><a class="viewcode-back" href="../../../cardsharp/arff.html#cardsharp.loaders.arff.ArffHandler.can_save">[docs]</a>    <span class="k">def</span> <span class="nf">can_save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;format&#39;</span><span class="p">)</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;arff&#39;</span><span class="p">,):</span>
+            <span class="k">return</span> <span class="mi">5000</span>
+        
+        <span class="k">return</span> <span class="mi">0</span>
+</div>
+<div class="viewcode-block" id="ArffHandler.saver"><a class="viewcode-back" href="../../../cardsharp/arff.html#cardsharp.loaders.arff.ArffHandler.saver">[docs]</a>    <span class="k">class</span> <span class="nc">saver</span><span class="p">(</span><span class="n">Saver</span><span class="p">):</span>         
+<div class="viewcode-block" id="ArffHandler.saver.rows"><a class="viewcode-back" href="../../../cardsharp/arff.html#cardsharp.loaders.arff.ArffHandler.saver.rows">[docs]</a>        <span class="k">def</span> <span class="nf">rows</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="n">opt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span>
+            
+            <span class="n">escape_char</span> <span class="o">=</span> <span class="s">&#39;</span><span class="se">\\</span><span class="s">&#39;</span> 
+            <span class="n">field_delimiter</span> <span class="o">=</span> <span class="s">&#39;,&#39;</span>
+            <span class="n">line_delimiter</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">linesep</span>
+            
+            <span class="n">escape_map</span> <span class="o">=</span> <span class="p">{</span> <span class="n">escape_char</span> <span class="p">:</span> <span class="n">escape_char</span> <span class="o">+</span> <span class="n">escape_char</span> <span class="p">}</span>
+            
+            <span class="n">escape_map</span><span class="p">[</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">escape_char</span> <span class="o">+</span> <span class="s">&#39;n&#39;</span>
+            <span class="n">escape_map</span><span class="p">[</span><span class="s">&#39;</span><span class="se">\r</span><span class="s">&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">escape_char</span> <span class="o">+</span> <span class="s">&#39;r&#39;</span>
+                
+            <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">chain</span><span class="p">(</span><span class="n">field_delimiter</span><span class="p">,</span> <span class="n">line_delimiter</span><span class="p">):</span>
+                <span class="n">escape_map</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">escape_char</span> <span class="o">+</span> <span class="n">c</span><span class="p">)</span>
+                
+            <span class="k">def</span> <span class="nf">_escape_field</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+                <span class="k">return</span> <span class="s">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">escape_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">s</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">opt</span><span class="p">[</span><span class="s">&#39;filename&#39;</span><span class="p">])</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">opt</span><span class="p">[</span><span class="s">&#39;overwrite&#39;</span><span class="p">]:</span>
+                <span class="k">raise</span> <span class="n">SaveError</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s"> file already exists and overwrite not enabled&#39;</span> <span class="o">%</span> <span class="n">opt</span><span class="p">[</span><span class="s">&#39;filename&#39;</span><span class="p">])</span>
+            
+            <span class="k">with</span> <span class="n">codecs</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">opt</span><span class="p">[</span><span class="s">&#39;filename&#39;</span><span class="p">],</span> <span class="s">&#39;wb&#39;</span><span class="p">,</span> <span class="n">opt</span><span class="p">[</span><span class="s">&#39;encoding&#39;</span><span class="p">])</span> <span class="k">as</span> <span class="n">out</span><span class="p">:</span>
+                <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;@relation </span><span class="si">%s%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">opt</span><span class="p">[</span><span class="s">&#39;dataset&#39;</span><span class="p">],</span> <span class="n">line_delimiter</span><span class="p">))</span>
+                <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">line_delimiter</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">opt</span><span class="p">[</span><span class="s">&#39;_variables&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">filter</span><span class="p">():</span>
+                    <span class="n">format</span> <span class="o">=</span> <span class="n">_get_format</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">var</span><span class="p">)</span>
+                    <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;@attribute </span><span class="si">%s</span><span class="s"> </span><span class="si">%s%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">format</span><span class="p">,</span> <span class="n">line_delimiter</span><span class="p">))</span>
+                <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">line_delimiter</span> <span class="o">+</span> <span class="s">&#39;@data&#39;</span> <span class="o">+</span> <span class="n">line_delimiter</span><span class="p">)</span>
+                <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+                    <span class="n">row</span> <span class="o">=</span> <span class="p">(</span><span class="k">yield</span><span class="p">)</span>
+                    <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_escape_field</span><span class="p">(</span><span class="n">_var_to_text</span><span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span> <span class="k">for</span> <span class="n">var</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">opt</span><span class="p">[</span><span class="s">&#39;_variables&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">pair_filter</span><span class="p">(</span><span class="n">row</span><span class="p">))</span> <span class="o">+</span> <span class="n">line_delimiter</span><span class="p">)</span>
+   </div></div></div>
+<span class="n">register</span><span class="p">(</span><span class="n">ArffHandler</span><span class="p">())</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">BM_email v.1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Michael Jugovich.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

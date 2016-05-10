@@ -1,0 +1,221 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Welcome to BM_email’s Project Write-up and documentation! &mdash; BM_email v.1 documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="BM_email v.1 documentation" href="#" />
+    <link rel="next" title="Full Project Report" href="report/main.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="report/main.html" title="Full Project Report"
+             accesskey="N">next</a> |</li>
+        <li><a href="#">BM_email v.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="welcome-to-bm-email-s-project-write-up-and-documentation">
+<h1>Welcome to BM_email&#8217;s Project Write-up and documentation!<a class="headerlink" href="#welcome-to-bm-email-s-project-write-up-and-documentation" title="Permalink to this headline">¶</a></h1>
+</div>
+<div class="section" id="project-report">
+<h1>Project Report<a class="headerlink" href="#project-report" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="report/main.html">Full Project Report</a></li>
+<li class="toctree-l1"><a class="reference internal" href="report/main.html#introduction">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="report/main.html#methodology">Methodology</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="report/main.html#gathering-burner-emails">Gathering Burner Emails</a></li>
+<li class="toctree-l2"><a class="reference internal" href="report/main.html#creating-the-raw-dataset">Creating the Raw Dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="report/main.html#coding-the-validation-and-training-data">Coding the Validation and Training data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="report/main.html#creating-the-pre-processed-dataset">Creating the Pre-processed Dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="report/main.html#creating-the-processed-test-and-training-datasets">Creating the Processed Test and Training Datasets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="report/main.html#creating-the-classifier-model">Creating the Classifier Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="report/main.html#running-predictions">Running Predictions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="report/main.html#validation">Validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="report/main.html#notes-on-saving-loading">Notes on Saving / Loading</a></li>
+<li class="toctree-l2"><a class="reference internal" href="report/main.html#automated">Automated</a></li>
+<li class="toctree-l2"><a class="reference internal" href="report/main.html#file-output-flow">File Output Flow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="report/main.html#full-command-line-output-from-run-command">Full Command Line Output From run() command</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="readme">
+<h1>README<a class="headerlink" href="#readme" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="README/rm.html">README</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="file-list">
+<h1>File List<a class="headerlink" href="#file-list" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="data/list.html">Get Your File Downloads Here</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="data/list.html#demo">Demo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data/list.html#metadata">Metadata</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data/list.html#process">Process</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data/list.html#results">Results</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data/list.html#stage">Stage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data/list.html#train">Train</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data/list.html#validate">Validate</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="modules">
+<h1>Modules<a class="headerlink" href="#modules" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="modules/event.html"><tt class="docutils literal"><span class="pre">event</span></tt> &#8212; event</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules/bmine.html"><tt class="docutils literal"><span class="pre">bmine</span></tt> &#8212; bmine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules/main.html"><tt class="docutils literal"><span class="pre">main</span></tt> &#8212; main</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="cardsharp">
+<h1>Cardsharp<a class="headerlink" href="#cardsharp" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="cardsharp/arff.html"><tt class="docutils literal"><span class="pre">arff</span></tt> &#8212; arff loader</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="data">
+<h1>Data<a class="headerlink" href="#data" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="data/list.html">Get Your File Downloads Here</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="data/list.html#demo">Demo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data/list.html#metadata">Metadata</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data/list.html#process">Process</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data/list.html#results">Results</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data/list.html#stage">Stage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data/list.html#train">Train</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data/list.html#validate">Validate</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><em>Index</em></a></li>
+<li><a class="reference internal" href="py-modindex.html"><em>Module Index</em></a></li>
+<li><a class="reference internal" href="search.html"><em>Search Page</em></a></li>
+</ul>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Welcome to BM_email&#8217;s Project Write-up and documentation!</a></li>
+<li><a class="reference internal" href="#project-report">Project Report</a><ul>
+</ul>
+</li>
+<li><a class="reference internal" href="#readme">README</a><ul>
+</ul>
+</li>
+<li><a class="reference internal" href="#file-list">File List</a><ul>
+</ul>
+</li>
+<li><a class="reference internal" href="#modules">Modules</a><ul>
+</ul>
+</li>
+<li><a class="reference internal" href="#cardsharp">Cardsharp</a><ul>
+</ul>
+</li>
+<li><a class="reference internal" href="#data">Data</a><ul>
+</ul>
+</li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+
+  <h4>Next topic</h4>
+  <p class="topless"><a href="report/main.html"
+                        title="next chapter">Full Project Report</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/index.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="report/main.html" title="Full Project Report"
+             >next</a> |</li>
+        <li><a href="#">BM_email v.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Michael Jugovich.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

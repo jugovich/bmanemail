@@ -1,0 +1,627 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Full Project Report &mdash; BM_email v.1 documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="BM_email v.1 documentation" href="../index.html" />
+    <link rel="next" title="README" href="../README/rm.html" />
+    <link rel="prev" title="Welcome to BM_email’s Project Write-up and documentation!" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../README/rm.html" title="README"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../index.html" title="Welcome to BM_email’s Project Write-up and documentation!"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">BM_email v.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="full-project-report">
+<h1>Full Project Report<a class="headerlink" href="#full-project-report" title="Permalink to this headline">¶</a></h1>
+</div>
+<div class="section" id="introduction">
+<h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
+<p>For the past 24 years a community of like-minded individuals has gathered together during the summer months to celebrate
+music, art and life. This celebration has grown into what we now call Burning Man and the community members who
+partake in it have been given the name of Burners. Since 1986 the yearly participants of Burning Man has grown from
+20 to over 50,000. Since yearly population does not correlate with total community size no one really knows how many
+Burners are out there (and who is a Burner is a topic worthy of discussion in of itself), but the number is substantial.
+As the Burning Man organization has grown it has developed a series of resources for the community.
+One of these resources is a series of regional announcement and discussion listhosts that provide a place for
+Burners to post local events and discus topics related to Burning Man.
+These resources are a fantastic tool and this project plans to use them to establish the foundation for an
+web application that will centralize event information to allow Burners quick and easy access to all events
+happening not only in their locale but across the world.</p>
+<p>This project has completed the initial work for the Burning Man Event Mail Filtering agent. The agent allows command line
+calls to load listhost emails into a raw dataset, then clean and process that dataset, save the files into arff format,
+generate a classification model, apply this model to the extracted emails, and finally runs validation
+on the prediction results. Future work includes improving the classifier model, and building a web interface to view the
+emails classified as events.</p>
+</div>
+<div class="section" id="methodology">
+<h1>Methodology<a class="headerlink" href="#methodology" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="gathering-burner-emails">
+<h2>Gathering Burner Emails<a class="headerlink" href="#gathering-burner-emails" title="Permalink to this headline">¶</a></h2>
+<p>Using <a class="reference external" href="http://regionals.burningman.com/regional-directory.html">http://regionals.burningman.com/regional-directory.html</a> I subscribed to announcement and discussion email
+list servers using the email address of <a class="reference external" href="mailto:bmanemail137&#37;&#52;&#48;gmail&#46;com">bmanemail137<span>&#64;</span>gmail<span>&#46;</span>com</a> on Jan 12th 2011. In gmail I created a filter for all
+these list servers using the from address to categorize them as name-list (discussion lists) and name-announce (announcement lists).
+Only public lists having &#64;burningman.com server were used, this eliminated all the private list servers to ensure
+privacy rules of those listhosts. In total 87 lists were used.</p>
+<p>Once filters were created I setup an imap connection to the Mozilla Thunderbird client. This client was used because it has
+extraction capabilities using a plugin called mbx2eml <a class="reference external" href="http://luethje.eu/prog/mbx2e-en.htm">http://luethje.eu/prog/mbx2e-en.htm</a>. This allowed me to create an
+export of all the emails into html format. The emails were exported into a subdirectory with the filter name + extract time.
+For this project on 5/26 I created on extract and all the raw html files can be seen in the <em>install-path</em>/data/raw/ dir.
+This extract produced 87 subdirectories with 3872 emails in total.</p>
+</div>
+<div class="section" id="creating-the-raw-dataset">
+<h2>Creating the Raw Dataset<a class="headerlink" href="#creating-the-raw-dataset" title="Permalink to this headline">¶</a></h2>
+<p>After the files were extracted I then began the process of reviewing the data and determining the best approach to conduct
+data preprocessing. The following rules were determined for extracting the raw emails.</p>
+<blockquote>
+<div><ol class="arabic">
+<li><p class="first">Loop over each subdirectory in raw (all the list servers)</p>
+</li>
+<li><p class="first">Loop over all the emails in the message folder</p>
+</li>
+<li><p class="first">Add the file path to the extract dataset for row id</p>
+</li>
+<li><p class="first">extract the subject, from, to, time, sender, date, cc, using the following regex</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="s">&#39;&lt;/td&gt;[ ]*&lt;/tr&gt;[ ]*&lt;/table&gt;[ ]*&lt;br&gt;(?P&lt;b&gt;.*?)&lt;/body&gt;[ ]*&lt;/html&gt;&#39;</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">add the list name information by looking at the directory where the emails were coming from</p>
+</li>
+<li><p class="first">add the list-tag information to check if the message came from another list (this information was to be used
+to determine if the message was forwarded but fwd: keyword in subject proved more reliable).
+To extract this information I looked at the subject variable and extracted the first occurrence of</p>
+<div class="highlight-python"><pre>&gt;&gt;&gt; [.+?]</pre>
+</div>
+</li>
+<li><p class="first">The next step was to clean the message body. I removed extra whitespace, html information, css style information, and if the
+message was a response then I removed the orignial message.</p>
+</li>
+<li><p class="first">After it was cleaned I added the body information. I created a helper function to split the body into 1000 character
+chunks to make manual coding of the test and validation dataset possible in excel.</p>
+</li>
+<li><p class="first">All this data was then saved to a extract.txt (.xls if review = True) file in the /data/stage directory.</p>
+</li>
+</ol>
+</div></blockquote>
+<p>The final extract was able to sucessfully code all but 9 emails. Thus the extract dataset had 3861 emails.</p>
+</div>
+<div class="section" id="coding-the-validation-and-training-data">
+<h2>Coding the Validation and Training data<a class="headerlink" href="#coding-the-validation-and-training-data" title="Permalink to this headline">¶</a></h2>
+<p>To create a C4.5 classifier I needed a training dataset. To produce this I generated a random sample of 509 emails
+to code. The coding was done subjectively following a very loose set of coding rules.</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>If the email had a specific time period announcing a gathering, party, fundraiser, festival, meet-n-great, etc.
+then it was coded as being an event.</li>
+<li>If the email provided updates about an event but no specific announcement information then it was coded as not an event.</li>
+<li>If the email was a re: then only information about a new event announcement made the email an event email.
+The original message did not count as an announcement.</li>
+<li>If the message was a forward then the originial message/(s) were reviewed for event announcement information and
+coded by rules 1 and 2.</li>
+</ol>
+</div></blockquote>
+<p>To create the validation dataset for determining the accuracy of the classifier model 240 new emails were coded using the
+above rules (the sample did not contain any emails in the training dataset). The coding was done by another individual
+from the original coder. This may have introduce additional selection bias of non-event versus event emails into the project.
+In future releases a more concrete criteria for selecting announcement emails will be followed. While this may result in
+more event emails not being correctly coded it will increase the accuracy of the model at predicting pre-defined &#8220;events&#8221;.</p>
+</div>
+<div class="section" id="creating-the-pre-processed-dataset">
+<h2>Creating the Pre-processed Dataset<a class="headerlink" href="#creating-the-pre-processed-dataset" title="Permalink to this headline">¶</a></h2>
+<p>Once the raw dataset was created the next step was to clean the dataset. All occurences of random characters that had
+whitespace around them were removed as well as link urls and html tag data.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">regex</span> <span class="o">=</span> <span class="s">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span>
+<span class="gp">&gt;&gt;&gt; </span>              <span class="s">&#39;http(s|)://.+? &#39;</span><span class="p">,</span> <span class="s">&#39;\(+&#39;</span><span class="p">,</span> <span class="s">&#39;\)+&#39;</span><span class="p">,</span> <span class="s">&#39;\.+&#39;</span><span class="p">,</span> <span class="s">&#39;@+&#39;</span><span class="p">,</span> <span class="s">&#39;,+&#39;</span><span class="p">,</span>  <span class="s">&#39;&amp;nbsp;&#39;</span><span class="p">,</span>  <span class="s">&#39;~+&#39;</span><span class="p">,</span> <span class="s">&#39;&quot;+&#39;</span><span class="p">,</span> <span class="s">&#39;\*+&#39;</span><span class="p">,</span> <span class="s">&#39;\++&#39;</span><span class="p">,</span> <span class="s">&#39;;+&#39;</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>              <span class="s">&#39;\|+&#39;</span><span class="p">,</span> <span class="s">&#39;!+&#39;</span><span class="p">,</span> <span class="s">&#39;=+&#39;</span><span class="p">,</span>  <span class="s">&#39;com/mailman/listinfo/&#39;</span><span class="p">,</span> <span class="s">&#39;&amp;#.+?;&#39;</span><span class="p">,</span> <span class="s">&#39;&quot;+&#39;</span><span class="p">,</span> <span class="s">&#39;&amp;amp&#39;</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>              <span class="s">&#39;com/&#39;</span><span class="p">,</span> <span class="s">&#39;com&amp;gt;&#39;</span><span class="p">,</span> <span class="s">&#39;php?eid&#39;</span><span class="p">,</span> <span class="s">&#39;\?+&#39;</span><span class="p">,</span> <span class="s">&#39;&amp;lt;&#39;</span><span class="p">,</span> <span class="s">&#39;&amp;gt&#39;</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>              <span class="s">&#39;&amp;quot;&#39;</span><span class="p">,</span> <span class="s">&#39;www&#39;</span><span class="p">,</span> <span class="s">&#39;-+&#39;</span><span class="p">,</span> <span class="s">&#39;message--+&#39;</span><span class="p">,</span> <span class="s">&#39;--+&#39;</span><span class="p">,</span> <span class="s">&#39;((n|)</span><span class="se">\&#39;</span><span class="s">(t|s|m))&#39;</span><span class="p">,</span> <span class="s">&#39;,+&#39;</span><span class="p">,</span> <span class="s">&#39;#+&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>The cleaned file was saved as extract-cleaned in stage and then loaded by the stage-training() module
+to add the predicted values which were  coding in the training dataset to the test dataset.
+This file was saved as pre-processed.txt in stage.</p>
+</div>
+<div class="section" id="creating-the-processed-test-and-training-datasets">
+<h2>Creating the Processed Test and Training Datasets<a class="headerlink" href="#creating-the-processed-test-and-training-datasets" title="Permalink to this headline">¶</a></h2>
+<p>The pre-processed.txt file was then loaded. The following variables were added to the test and training dataset:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="s">&#39;b-day&#39;</span><span class="p">,</span> <span class="s">&#39;b-date&#39;</span><span class="p">,</span> <span class="s">&#39;b-time-full&#39;</span><span class="p">,</span> <span class="s">&#39;b-time-str&#39;</span><span class="p">,</span> <span class="s">&#39;b-month&#39;</span><span class="p">,</span> <span class="s">&#39;b-season&#39;</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span> <span class="s">&#39;s-day&#39;</span><span class="p">,</span> <span class="s">&#39;s-date&#39;</span><span class="p">,</span> <span class="s">&#39;s-time-full&#39;</span><span class="p">,</span> <span class="s">&#39;s-time-str&#39;</span><span class="p">,</span> <span class="s">&#39;s-month&#39;</span><span class="p">,</span> <span class="s">&#39;s-season&#39;</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span> <span class="s">&#39;re&#39;</span><span class="p">,</span> <span class="s">&#39;fwd&#39;</span><span class="p">,</span> <span class="s">&#39;list-name&#39;</span><span class="p">,</span> <span class="s">&#39;event&#39;</span><span class="p">,</span> <span class="p">]</span>
+</pre></div>
+</div>
+<p>These variables represented if keyword information was contained in the body b- or the subject s-, or if the email
+was a response email (re: was checked in subject), a forwarded email (fwd was checked in subject), the list-name was added
+(extracted from the directory where the email resided) and event was the predicted value.</p>
+<p>In addition to the above data keywords were added to a text file which was loaded and then the k-<em>key</em> for each key in
+keywords file was added to the test and training datasets.</p>
+<p>After the variables were all added then the body and subjected were seached for the keywords. For the keywords in the file
+stop-words were included in the search. The following keywords were used.</p>
+<div class="highlight-python"><pre>&gt;&gt;&gt; key regex-value
+&gt;&gt;&gt; 1   save the date
+&gt;&gt;&gt; 2   come join us
+&gt;&gt;&gt; 3   on sale
+&gt;&gt;&gt; 4   buy tickets
+&gt;&gt;&gt; 5   general admission
+&gt;&gt;&gt; 6   date
+&gt;&gt;&gt; 7   tickets
+&gt;&gt;&gt; 8   admission
+&gt;&gt;&gt; 9   \\$\\d+
+&gt;&gt;&gt; 10  announcement
+&gt;&gt;&gt; 11  fundraiser
+&gt;&gt;&gt; 12  party
+&gt;&gt;&gt; 13  festival
+&gt;&gt;&gt; 14  event</pre>
+</div>
+<p>For the other keywords stop-words were removed to provide better matching results. A list of stop words was created by
+manually reviewing (iterative proceess) the full set of terms present in the data along with frequencies. The list of
+stop words was as follows:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="s">&#39;the&#39;</span><span class="p">,</span> <span class="s">&#39;to&#39;</span><span class="p">,</span> <span class="s">&#39;and&#39;</span><span class="p">,</span> <span class="s">&#39;of&#39;</span><span class="p">,</span> <span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="s">&#39;you&#39;</span><span class="p">,</span> <span class="s">&#39;is&#39;</span><span class="p">,</span> <span class="s">&#39;or&#39;</span><span class="p">,</span> <span class="s">&#39;i&#39;</span><span class="p">,</span> <span class="s">&#39;on&#39;</span><span class="p">,</span> <span class="s">&#39;be&#39;</span><span class="p">,</span> <span class="s">&#39;your&#39;</span><span class="p">,</span> <span class="s">&#39;that&#39;</span><span class="p">,</span> <span class="s">&#39;are&#39;</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span> <span class="s">&#39;with&#39;</span><span class="p">,</span> <span class="s">&#39;-&#39;</span><span class="p">,</span> <span class="s">&#39;will&#39;</span><span class="p">,</span> <span class="s">&#39;have&#39;</span><span class="p">,</span> <span class="s">&#39;as&#39;</span><span class="p">,</span> <span class="s">&#39;&amp;amp;&#39;</span><span class="p">,</span> <span class="s">&#39;all&#39;</span><span class="p">,</span> <span class="s">&#39;list&#39;</span><span class="p">,</span> <span class="s">&#39;from&#39;</span><span class="p">,</span> <span class="s">&#39;by&#39;</span><span class="p">,</span> <span class="s">&#39;our&#39;</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span> <span class="s">&#39;mailing&#39;</span><span class="p">,</span> <span class="s">&#39;not&#39;</span><span class="p">,</span> <span class="s">&#39;an&#39;</span><span class="p">,</span> <span class="s">&#39;so&#39;</span><span class="p">,</span> <span class="s">&#39;but&#39;</span><span class="p">,</span> <span class="s">&#39;in&#39;</span><span class="p">,</span> <span class="s">&#39;it&#39;</span><span class="p">,</span> <span class="s">&#39;because&#39;</span><span class="p">,</span> <span class="s">&#39;had&#39;</span><span class="p">,</span> <span class="s">&#39;you&#39;</span><span class="p">,</span> <span class="s">&#39;hey&#39;</span><span class="p">,</span> <span class="s">&#39;we&#39;</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span> <span class="s">&#39;hi&#39;</span><span class="p">,</span> <span class="s">&#39;hello&#39;</span><span class="p">,</span> <span class="s">&#39;greetings&#39;</span><span class="p">,</span> <span class="s">&#39;dear&#39;</span><span class="p">,</span> <span class="s">&#39;can&#39;</span><span class="p">,</span> <span class="s">&#39;thanks&#39;</span><span class="p">,</span> <span class="s">&#39;if&#39;</span><span class="p">,</span> <span class="s">&#39;--+&#39;</span><span class="p">,</span> <span class="s">&#39;\*+&#39;</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span> <span class="s">&#39;me&#39;</span><span class="p">,</span> <span class="s">&#39;has&#39;</span><span class="p">,</span> <span class="s">&#39;was&#39;</span><span class="p">,</span> <span class="s">&#39;would&#39;</span><span class="p">,</span> <span class="s">&#39;who&#39;</span><span class="p">,</span> <span class="s">&#39;unsubscribe&#39;</span><span class="p">,</span> <span class="s">&#39;up&#39;</span><span class="p">,</span> <span class="s">&#39;@burningman.com&#39;</span><span class="p">,</span> <span class="s">&#39;burningman&#39;</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span> <span class="s">&#39;for&#39;</span><span class="p">,</span> <span class="s">&#39;this&#39;</span><span class="p">,</span> <span class="s">&#39;does&#39;</span><span class="p">,</span> <span class="s">&#39;can&#39;</span><span class="p">,</span> <span class="s">&#39;com&#39;</span><span class="p">,</span> <span class="s">&#39;man&#39;</span><span class="p">,</span> <span class="s">&#39;burning&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Once the stop words were removed the below regular expressions were applied to match the remaining keywords:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="c">#regular expression for extracting certain keywords present in the data</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">day</span>       <span class="o">=</span> <span class="p">(</span><span class="s">&#39;day&#39;</span><span class="p">,</span> <span class="s">&#39;(mon|tues|wed(nes|)|thur(s|)|fri|sat|sun)( |day)&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">time</span><span class="o">-</span><span class="n">full</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;time-full&#39;</span><span class="p">,</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s"> (\d+:\d+|\d+)[ ]*(am|pm)&#39;</span> <span class="o">%</span> <span class="n">day</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">time</span><span class="o">-</span><span class="nb">str</span>  <span class="o">=</span> <span class="p">(</span><span class="s">&#39;time-str&#39;</span><span class="p">,</span> <span class="s">&#39;noon|midnight|dusk|dawn|night|day&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">month</span>     <span class="o">=</span> <span class="p">(</span><span class="s">&#39;month&#39;</span><span class="p">,</span> <span class="s">&#39; jan(uary|) | feb(uary|) |march|april| may |june|july|august|september|october| (nov|ember) | dec(ember|) &#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">season</span>    <span class="o">=</span> <span class="p">(</span><span class="s">&#39;season&#39;</span><span class="p">,</span> <span class="s">&#39;sping|summer|winter|fall&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">date</span>      <span class="o">=</span> <span class="p">(</span><span class="s">&#39;date&#39;</span><span class="p">,</span> <span class="s">&#39;\d+[/-]\d+[/-]d+|\d+[ ]*(?=</span><span class="si">%s</span><span class="s">)|</span><span class="si">%s</span><span class="s"> \d+&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">month</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">day</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+</pre></div>
+</div>
+<p>If a match was found to a keyword its corresponding variable was coded as a <strong>YES</strong> otherwise it was a <strong>NO</strong>.</p>
+<p>The training set was isolated by checking to see if the dataset initially loaded had a predicted value (was appended
+during stage training). If it did then the keyword term matrix was added to the the training.arff file where each row
+represented a case (email) and each column represented a term. For the test dataset all processed rows were added.</p>
+<p>Finally the test.arff and training.arff datasets were saved to /datat/process/</p>
+</div>
+<div class="section" id="creating-the-classifier-model">
+<h2>Creating the Classifier Model<a class="headerlink" href="#creating-the-classifier-model" title="Permalink to this headline">¶</a></h2>
+<p>To classify event emails weka&#8217;s J48 implementation of the C4.5 classifier algorithm was used with the default settings
+(changing the settings never improved the accuracy). Many iterations of trying different sets of keywords were attempted.
+After much trial and error the keyword list and regular expressions for parsing was finialized (see above) and I created
+a wrapper for calling weka through python. To create the classifier I used python&#8217;s subprocessor.call() method:
+see <a class="reference external" href="http://docs.python.org/library/subprocess.html">http://docs.python.org/library/subprocess.html</a></p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">([</span><span class="s">&#39;java&#39;</span><span class="p">,</span> <span class="s">&#39;weka.classifiers.trees.J48&#39;</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>                 <span class="s">&#39;-C&#39;</span><span class="p">,</span> <span class="s">&#39;0.25&#39;</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>                 <span class="s">&#39;-M&#39;</span><span class="p">,</span> <span class="s">&#39;2&#39;</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>                 <span class="s">&#39;-t&#39;</span><span class="p">,</span> <span class="n">training</span><span class="o">-</span><span class="nb">file</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>                 <span class="s">&#39;-d&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">-</span><span class="nb">dir</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>This resulted in the following output (in addition to a model.model file which was saved in /data/process).</p>
+<p>Building C4.5 classification model using supplied training set...</p>
+<p>Options: -C 0.25 -M 2</p>
+<div class="section" id="j48-pruned-tree">
+<h3>J48 pruned tree<a class="headerlink" href="#j48-pruned-tree" title="Permalink to this headline">¶</a></h3>
+<p>k-8 = YES: YES (17.0/1.0)</p>
+<p>k-8 = NO</p>
+<div class="line-block">
+<div class="line">re = YES: NO (269.0/6.0)</div>
+</div>
+<div class="line-block">
+<div class="line">re = NO</div>
+</div>
+<div class="line-block">
+<div class="line">|   b-month = YES</div>
+</div>
+<div class="line-block">
+<div class="line">|   |   k-11 = YES: YES (12.0)</div>
+</div>
+<div class="line-block">
+<div class="line">|   |   k-11 = NO</div>
+</div>
+<div class="line-block">
+<div class="line">|   |   |   b-time-str = YES: YES (76.0/20.0)</div>
+</div>
+<div class="line-block">
+<div class="line">|   |   |   b-time-str = NO: NO (20.0/7.0)</div>
+</div>
+<div class="line-block">
+<div class="line">|   b-month = NO</div>
+</div>
+<div class="line-block">
+<div class="line">|   |   k-9 = YES</div>
+</div>
+<div class="line-block">
+<div class="line">|   |   |   b-time-str = YES</div>
+</div>
+<div class="line-block">
+<div class="line">|   |   |   |   k-14 = YES: NO (3.0/1.0)</div>
+</div>
+<div class="line-block">
+<div class="line">|   |   |   |   k-14 = NO: YES (6.0/1.0)</div>
+</div>
+<div class="line-block">
+<div class="line">|   |   |   b-time-str = NO: NO (5.0)</div>
+</div>
+<div class="line-block">
+<div class="line">|   |   k-9 = NO</div>
+</div>
+<div class="line-block">
+<div class="line">|   |   |   k-14 = YES</div>
+</div>
+<div class="line-block">
+<div class="line">|   |   |   |   k-7 = YES: YES (3.0)</div>
+</div>
+<div class="line-block">
+<div class="line">|   |   |   |   k-7 = NO: NO (8.0/2.0)</div>
+</div>
+<div class="line-block">
+<div class="line">|   |   |   k-14 = NO: NO (90.0/3.0)</div>
+</div>
+<p>Number of Leaves  :     11</p>
+<p>Size of the tree :      21</p>
+<p>Time taken to build model: 0.03 seconds</p>
+<p>Time taken to test model on training data: 0.02 seconds</p>
+<p>=== Error on training data ===</p>
+<p>Correctly Classified Instances         468               91.945  %</p>
+<p>Incorrectly Classified Instances        41                8.055  %</p>
+<p>Kappa statistic                          0.7661</p>
+<p>Mean absolute error                      0.1257</p>
+<p>Root mean squared error                  0.2507</p>
+<p>Relative absolute error                 36.7952 %</p>
+<p>Root relative squared error             60.7141 %</p>
+<p>Total Number of Instances              509</p>
+<p>=== Confusion Matrix ===</p>
+<blockquote>
+<div><blockquote>
+<div>a   b   &lt;&#8211; classified as</div></blockquote>
+<p>92  19 |   a = YES</p>
+<p>22 376 |   b = NO</p>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="running-predictions">
+<h2>Running Predictions<a class="headerlink" href="#running-predictions" title="Permalink to this headline">¶</a></h2>
+<p>Using the model which was produced I used subprocess.check-output to capture the prediction infomation and add this
+to the test dataset. This is necessary for both validation purposes and to be able to identify predicted email for
+loading into the web interface for dispalying to users the different events.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">predictions</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">check</span><span class="o">-</span><span class="n">output</span><span class="p">([</span><span class="s">&#39;java&#39;</span><span class="p">,</span> <span class="s">&#39;weka.classifiers.trees.J48&#39;</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>               <span class="s">&#39;-p&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">test</span><span class="o">.</span><span class="n">variables</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">predict</span><span class="o">-</span><span class="n">var</span><span class="o">-</span><span class="n">name</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span>
+<span class="gp">&gt;&gt;&gt; </span>               <span class="s">&#39;-T&#39;</span><span class="p">,</span> <span class="n">test</span><span class="o">-</span><span class="nb">file</span> <span class="o">+</span> <span class="s">&#39;.arff&#39;</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>               <span class="s">&#39;-l&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">-</span><span class="nb">file</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>The test dataset with appended predictions was saved to /data/results.xls</p>
+</div>
+<div class="section" id="validation">
+<h2>Validation<a class="headerlink" href="#validation" title="Permalink to this headline">¶</a></h2>
+<p>After the test dataset was outputted I then loaded the validation dataset and compared the predicted values in it to the
+predicited values in the test dataset. These results were saved and outputted to a stats.txt file:</p>
+<p>Validation</p>
+<p>Total validation sample: 240</p>
+<p>Total predicted: 230</p>
+<p>Model was 62.17% accurate.</p>
+<p>Confusion Matrix</p>
+<blockquote>
+<div>a   b   &lt;&#8211; classified as</div></blockquote>
+<p>15.0  45.0 |   a = YES</p>
+<p>42.0  128.0 |   b = NO</p>
+</div>
+<div class="section" id="notes-on-saving-loading">
+<h2>Notes on Saving / Loading<a class="headerlink" href="#notes-on-saving-loading" title="Permalink to this headline">¶</a></h2>
+<p>Most saving and loading and some variable manipulation used the cardsharp open source project,
+<a class="reference external" href="http://cardsharp.norc.org/cardsharp/wiki/Home">http://cardsharp.norc.org/cardsharp/wiki/Home</a> . To allow for loading and saving of arff files I created
+an arff handler to add to the cardsharp project.</p>
+</div>
+<div class="section" id="automated">
+<h2>Automated<a class="headerlink" href="#automated" title="Permalink to this headline">¶</a></h2>
+<p>This project has created the ability to load a set of raw html files, clean and parse these files, and then load
+them into weka for classification and finally output a classified dataset all within the python framework. Incorporating
+django the whole process including display to the web can be automated. This creating an online web filtering agent.</p>
+</div>
+<div class="section" id="file-output-flow">
+<h2>File Output Flow<a class="headerlink" href="#file-output-flow" title="Permalink to this headline">¶</a></h2>
+<p>The below files are produced after running the bmemail event.py run command.</p>
+<p>First raw emails are parsed using bmine.extract() to produce the extract file:
+<a class="reference download internal" href="../_downloads/extract1.txt"><tt class="xref download docutils literal"><span class="pre">extract.txt</span></tt></a></p>
+<p>Then the extract file is cleaned with bmine.clean() to procude the cleaned extract file:
+<a class="reference download internal" href="../_downloads/extract-cleaned2.txt"><tt class="xref download docutils literal"><span class="pre">extract-cleaned.txt</span></tt></a></p>
+<p>Then the cleaned-extract has more pre-processing work done to it to get it ready for processing. First bmine.stage-train()
+is called to add the training data (<a class="reference download internal" href="../_downloads/t-data2.xls"><tt class="xref download docutils literal"><span class="pre">t-data.txt</span></tt></a>) to the cleaned-extract and this produces-
+<a class="reference download internal" href="../_downloads/pre-processed2.txt"><tt class="xref download docutils literal"><span class="pre">pre-processed.txt</span></tt></a>, and then bmine.process() is run to produce arff files
+for conducting datamining work in weka- <a class="reference download internal" href="../_downloads/train1.arff"><tt class="xref download docutils literal"><span class="pre">train.txt</span></tt></a>, and <a class="reference download internal" href="../_downloads/test1.txt"><tt class="xref download docutils literal"><span class="pre">test.txt</span></tt></a>.</p>
+<p>After the training and test file have been produced a model is created using main.build-model() creating a .model file:
+<a class="reference download internal" href="../_downloads/model3.model"><tt class="xref download docutils literal"><span class="pre">model.model</span></tt></a>.</p>
+<p>This model is used to do C4.5 classification on the test.arff file using weka&#8217;s J48 algorithm by running main.classify(),
+and the output from this is captured by Python using the subprocess.check-output() command. This output is appended to the
+test dataset and then saved to <a class="reference download internal" href="../_downloads/output17.xls"><tt class="xref download docutils literal"><span class="pre">output.xls</span></tt></a>.</p>
+<p>Finally, the output file is read and compared against the validation file,
+<a class="reference download internal" href="../_downloads/v-data2.xls"><tt class="xref download docutils literal"><span class="pre">validate.xls</span></tt></a> to access the accuracy of the model. Some
+statistics about the accuracy of the model, including a confusion matrix, are outputed to
+<a class="reference download internal" href="../_downloads/stats1.txt"><tt class="xref download docutils literal"><span class="pre">stats.txt</span></tt></a>,</p>
+<div class="section" id="the-below-files-are-used-to-run-the-bm-email-program">
+<h3>The below files are used to run the BM-email program.<a class="headerlink" href="#the-below-files-are-used-to-run-the-bm-email-program" title="Permalink to this headline">¶</a></h3>
+<p>The keywords file is a tab delimited file with the first column being the key and the second column is a regular expression
+to match a certain keyword or phrase.</p>
+<p><a class="reference download internal" href="../_downloads/keywords5.txt"><tt class="xref download docutils literal"><span class="pre">keywords.txt</span></tt></a></p>
+<p>The training file was created using the gen-sample() method in bmine with sample parameter = .13. This produced
+a training sample file of 510 emails which were than manually coded (event) as either an event announcement or not
+an event announcement.</p>
+<p><a class="reference download internal" href="../_downloads/t-data2.xls"><tt class="xref download docutils literal"><span class="pre">train.xls</span></tt></a></p>
+<p>The validation file was created using the gen-sample() method in bmine with sample parameter = .05. This produced
+a training sample file of 240 emails which were than manually coded (event) as either an event announcement or not
+an event announcement.</p>
+<p><a class="reference download internal" href="../_downloads/v-data2.xls"><tt class="xref download docutils literal"><span class="pre">validate.xls</span></tt></a></p>
+</div>
+</div>
+<div class="section" id="full-command-line-output-from-run-command">
+<h2>Full Command Line Output From run() command<a class="headerlink" href="#full-command-line-output-from-run-command" title="Permalink to this headline">¶</a></h2>
+<p>...extracting raw emails (this is gonna take a bit)...</p>
+<p>Problem extracting D:workspacebmemaildatarawdenver-announce-20110526-2347messages20110314-[denver-announce] TONIGHT! Meet &amp; Greet Potluck-6.html</p>
+<p>ROW: D:workspacebmemaildatarawdenver-announce-20110526-2347messages20110314-[denver-announce] TONIGHT! Meet &amp; Greet Potluck-6.html</p>
+<hr class="docutils" />
+<p>Problem extracting D:workspacebmemaildatarawdenver-announce-20110526-2347messages20110321-[denver-announce] Burner Meet &amp; Greet Potluck - Sushi Edition -8pm -1 am-9.html</p>
+<p>ROW: D:workspacebmemaildatarawdenver-announce-20110526-2347messages20110321-[denver-announce] Burner Meet &amp; Greet Potluck - Sushi Edition -8pm -1 am-9.html</p>
+<hr class="docutils" />
+<p>Problem extracting D:workspacebmemaildatarawdenver-announce-20110526-2347messages20110411-[denver-announce] Potluck Monday! Burner Meet &amp; Greet Potluck 8pm -1 am-19.html</p>
+<p>ROW: D:workspacebmemaildatarawdenver-announce-20110526-2347messages20110411-[denver-announce] Potluck Monday! Burner Meet &amp; Greet Potluck 8pm -1 am-19.html</p>
+<hr class="docutils" />
+<p>Problem extracting D:workspacebmemaildatarawdenver-announce-20110526-2347messages20110502-[denver-announce] Potluck Monday! Burner Meet &amp; Greet Potluck 8pm -1 am-25.html</p>
+<p>ROW: D:workspacebmemaildatarawdenver-announce-20110526-2347messages20110502-[denver-announce] Potluck Monday! Burner Meet &amp; Greet Potluck 8pm -1 am-25.html</p>
+<hr class="docutils" />
+<p>Problem extracting D:workspacebmemaildatarawdenver-announce-20110526-2347messages20110509-[denver-announce] Tonight!! Potluck Monday! Meet and Greet!-27.html</p>
+<p>ROW: D:workspacebmemaildatarawdenver-announce-20110526-2347messages20110509-[denver-announce] Tonight!! Potluck Monday! Meet and Greet!-27.html</p>
+<hr class="docutils" />
+<p>Problem extracting D:workspacebmemaildatarawdenver-announce-20110526-2347messages20110519-[denver-announce] Pink Mammoth Fundraiser This Saturday!-34.html</p>
+<p>ROW: D:workspacebmemaildatarawdenver-announce-20110526-2347messages20110519-[denver-announce] Pink Mammoth Fundraiser This Saturday!-34.html</p>
+<hr class="docutils" />
+<p>Problem extracting D:workspacebmemaildatarawla-announce-20110526-2348messages20110331-[la-announce] LA Burning Man Announce 3-31-19.html</p>
+<p>ROW: D:workspacebmemaildatarawla-announce-20110526-2348messages20110331-[la-announce] LA Burning Man Announce 3-31-19.html</p>
+<hr class="docutils" />
+<p>Problem extracting D:workspacebmemaildatarawnewyork-list-20110526-2348messages20110406-[BManNYC] OT World-s First Bacon Perfume-158.html</p>
+<p>ROW: D:workspacebmemaildatarawnewyork-list-20110526-2348messages20110406-[BManNYC] OT World-s First Bacon Perfume-158.html</p>
+<hr class="docutils" />
+<p>D:workspacebmemaildatarawnewyork-list-20110526-2348messages20110418-Re-[BManNYC] Travelers Insurance (was  OT Please help friend-KKe?r in need and go have your fun too!)-397.html does not exist.</p>
+<p>Problem extracting D:workspacebmemaildatarawportland-list-20110526-2345messages20110513-Re[portland-list] Bacon Filibuster-465.html</p>
+<p>ROW: D:workspacebmemaildatarawportland-list20110526-2345messages20110513-Re[portland-list] Bacon Filibuster-465.html</p>
+<hr class="docutils" />
+<p>Extraction Compelete with 9 emails failed to parse...</p>
+<p>Saving dataset...</p>
+<p>save complete...</p>
+<p>...cleaning data...</p>
+<p>complete.</p>
+<p>Staging training dataset (adding in predicted values)...</p>
+<p>...complete.</p>
+<p>...processing data...</p>
+<p>complete.</p>
+<p>Building C4.5 classification model using supplied training set...</p>
+<p>Options: -C 0.25 -M 2</p>
+<p>J48 pruned tree</p>
+<p>k-8 = YES: YES (17.0/1.0)</p>
+<p>k-8 = NO</p>
+<div class="line-block">
+<div class="line">re = YES: NO (269.0/6.0)</div>
+</div>
+<div class="line-block">
+<div class="line">re = NO</div>
+</div>
+<div class="line-block">
+<div class="line">|   b-month = YES</div>
+</div>
+<div class="line-block">
+<div class="line">|   |   k-11 = YES: YES (12.0)</div>
+</div>
+<div class="line-block">
+<div class="line">|   |   k-11 = NO</div>
+</div>
+<div class="line-block">
+<div class="line">|   |   |   b-time-str = YES: YES (76.0/20.0)</div>
+</div>
+<div class="line-block">
+<div class="line">|   |   |   b-time-str = NO: NO (20.0/7.0)</div>
+</div>
+<div class="line-block">
+<div class="line">|   b-month = NO</div>
+</div>
+<div class="line-block">
+<div class="line">|   |   k-9 = YES</div>
+</div>
+<div class="line-block">
+<div class="line">|   |   |   b-time-str = YES</div>
+</div>
+<div class="line-block">
+<div class="line">|   |   |   |   k-14 = YES: NO (3.0/1.0)</div>
+</div>
+<div class="line-block">
+<div class="line">|   |   |   |   k-14 = NO: YES (6.0/1.0)</div>
+</div>
+<div class="line-block">
+<div class="line">|   |   |   b-time-str = NO: NO (5.0)</div>
+</div>
+<div class="line-block">
+<div class="line">|   |   k-9 = NO</div>
+</div>
+<div class="line-block">
+<div class="line">|   |   |   k-14 = YES</div>
+</div>
+<div class="line-block">
+<div class="line">|   |   |   |   k-7 = YES: YES (3.0)</div>
+</div>
+<div class="line-block">
+<div class="line">|   |   |   |   k-7 = NO: NO (8.0/2.0)</div>
+</div>
+<div class="line-block">
+<div class="line">|   |   |   k-14 = NO: NO (90.0/3.0)</div>
+</div>
+<p>Number of Leaves  :     11</p>
+<p>Size of the tree :      21</p>
+<p>Time taken to build model: 0.03 seconds</p>
+<p>Time taken to test model on training data: 0 seconds</p>
+<p>=== Error on training data ===</p>
+<p>Correctly Classified Instances         468               91.945  %</p>
+<p>Incorrectly Classified Instances        41                8.055  %</p>
+<p>Kappa statistic                          0.7661</p>
+<p>Mean absolute error                      0.1257</p>
+<p>Root mean squared error                  0.2507</p>
+<p>Relative absolute error                 36.7952 %</p>
+<p>Root relative squared error             60.7141 %</p>
+<p>Total Number of Instances              509</p>
+<p>=== Confusion Matrix ===</p>
+<blockquote>
+<div><blockquote>
+<div>a   b   &lt;&#8211; classified as</div></blockquote>
+<p>92  19 |   a = YES</p>
+<p>22 376 |   b = NO</p>
+</div></blockquote>
+<p>=== Stratified cross-validation ===</p>
+<p>Correctly Classified Instances         448               88.0157 %</p>
+<p>Incorrectly Classified Instances        61               11.9843 %</p>
+<p>Kappa statistic                          0.6497</p>
+<p>Mean absolute error                      0.1596</p>
+<p>Root mean squared error                  0.3172</p>
+<p>Relative absolute error                 46.6985 %</p>
+<p>Root relative squared error             76.8067 %</p>
+<p>Total Number of Instances              509</p>
+<p>=== Confusion Matrix ===</p>
+<blockquote>
+<div><blockquote>
+<div>a   b   &lt;&#8211; classified as</div></blockquote>
+<p>81  30 |   a = YES</p>
+<p>31 367 |   b = NO</p>
+</div></blockquote>
+<p>...complete.</p>
+<p>Validating data...</p>
+<p>Validation</p>
+<p>Total validation sample: 240</p>
+<p>Total predicted: 230</p>
+<p>Model was 62.17% accurate.</p>
+<p>Confusion Matrix</p>
+<blockquote>
+<div>a   b   &lt;&#8211; classified as</div></blockquote>
+<p>15.0  45.0 |   a = YES</p>
+<p>42.0  128.0 |   b = NO</p>
+<p>All Complete.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Full Project Report</a></li>
+<li><a class="reference internal" href="#introduction">Introduction</a></li>
+<li><a class="reference internal" href="#methodology">Methodology</a><ul>
+<li><a class="reference internal" href="#gathering-burner-emails">Gathering Burner Emails</a></li>
+<li><a class="reference internal" href="#creating-the-raw-dataset">Creating the Raw Dataset</a></li>
+<li><a class="reference internal" href="#coding-the-validation-and-training-data">Coding the Validation and Training data</a></li>
+<li><a class="reference internal" href="#creating-the-pre-processed-dataset">Creating the Pre-processed Dataset</a></li>
+<li><a class="reference internal" href="#creating-the-processed-test-and-training-datasets">Creating the Processed Test and Training Datasets</a></li>
+<li><a class="reference internal" href="#creating-the-classifier-model">Creating the Classifier Model</a><ul>
+<li><a class="reference internal" href="#j48-pruned-tree">J48 pruned tree</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#running-predictions">Running Predictions</a></li>
+<li><a class="reference internal" href="#validation">Validation</a></li>
+<li><a class="reference internal" href="#notes-on-saving-loading">Notes on Saving / Loading</a></li>
+<li><a class="reference internal" href="#automated">Automated</a></li>
+<li><a class="reference internal" href="#file-output-flow">File Output Flow</a><ul>
+<li><a class="reference internal" href="#the-below-files-are-used-to-run-the-bm-email-program">The below files are used to run the BM-email program.</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#full-command-line-output-from-run-command">Full Command Line Output From run() command</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../index.html"
+                        title="previous chapter">Welcome to BM_email&#8217;s Project Write-up and documentation!</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../README/rm.html"
+                        title="next chapter">README</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/report/main.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../README/rm.html" title="README"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../index.html" title="Welcome to BM_email’s Project Write-up and documentation!"
+             >previous</a> |</li>
+        <li><a href="../index.html">BM_email v.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Michael Jugovich.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

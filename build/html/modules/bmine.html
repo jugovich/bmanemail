@@ -1,0 +1,189 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>bmine — bmine &mdash; BM_email v.1 documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="BM_email v.1 documentation" href="../index.html" />
+    <link rel="next" title="main — main" href="main.html" />
+    <link rel="prev" title="event — event" href="event.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="main.html" title="main — main"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="event.html" title="event — event"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">BM_email v.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-bmine">
+<span id="bmine-bmine"></span><h1><a class="reference internal" href="#module-bmine" title="bmine"><tt class="xref py py-mod docutils literal"><span class="pre">bmine</span></tt></a> &#8212; bmine<a class="headerlink" href="#module-bmine" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="bmine.bmine">
+<em class="property">class </em><tt class="descclassname">bmine.</tt><tt class="descname">bmine</tt><big>(</big><em>data_dir</em>, <em>save_dir</em>, <em>**kw</em><big>)</big><a class="reference internal" href="../_modules/bmine.html#bmine"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bmine.bmine" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class to house dataset processing modules for activities related to Burning Man )( data mining.</p>
+<dl class="method">
+<dt id="bmine.bmine.clean">
+<tt class="descname">clean</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/bmine.html#bmine.clean"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bmine.bmine.clean" title="Permalink to this definition">¶</a></dt>
+<dd><p>This module cleans the dataset, removing non-essential information from the body that was missed by cleaning
+regular expressions during raw dataset extraction.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="bmine.bmine.extract">
+<tt class="descname">extract</tt><big>(</big><em>path</em>, <em>l_n</em>, <em>**kw</em><big>)</big><a class="reference internal" href="../_modules/bmine.html#bmine.extract"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bmine.bmine.extract" title="Permalink to this definition">¶</a></dt>
+<dd><p>This module extracts email information. The module requires a <em>path</em> to the email file and a list_name <em>l_n</em>
+for the name of the list server that the email was extracted from.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="bmine.bmine.load">
+<tt class="descname">load</tt><big>(</big><em>fn</em>, <em>fmt</em><big>)</big><a class="reference internal" href="../_modules/bmine.html#bmine.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bmine.bmine.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>This module takes a filename and format and then using these arguements loads a dataset at self.data_dir.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="bmine.bmine.process">
+<tt class="descname">process</tt><big>(</big><em>data_dir</em>, <em>save_dir</em><big>)</big><a class="reference internal" href="../_modules/bmine.html#bmine.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bmine.bmine.process" title="Permalink to this definition">¶</a></dt>
+<dd><p>This module processes a extracted and cleaned dataset and creates processed .arff files and a .text files. 
+It produces test.arff (the test dataset) and training.arff (the training dataset). The training dataset is used
+by gen_model() to create a C4.5 classificaition model using weka&#8217;s J48 algorithm and test.arff is used in
+classify() to use the model created by the training dataset and then apply this model to the test dataset to
+predict the event variable.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="bmine.bmine.review_terms">
+<tt class="descname">review_terms</tt><big>(</big><big>)</big><a class="headerlink" href="#bmine.bmine.review_terms" title="Permalink to this definition">¶</a></dt>
+<dd><p>This module is a helper function to review the list of terms present in the extracted file. It was used
+to review the results of cleaning and removing stop words.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="bmine.bmine.save">
+<tt class="descname">save</tt><big>(</big><em>fn</em>, <em>fmt</em>, <em>sample=None</em><big>)</big><a class="reference internal" href="../_modules/bmine.html#bmine.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bmine.bmine.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>This module takes a filename, format, and optional sample arguement and saves the dataset with the given
+arguements. If a sample arguement is provided than a random sample of x% is saved where x is a float. 
+x = .05 will save approxiametly 5% of the file.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="bmine.bmine.stage_training">
+<tt class="descname">stage_training</tt><big>(</big><em>dir</em>, <em>fn</em>, <em>fmt</em><big>)</big><a class="reference internal" href="../_modules/bmine.html#bmine.stage_training"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bmine.bmine.stage_training" title="Permalink to this definition">¶</a></dt>
+<dd><p>This module take a directory, filename and format of a coded training dataset and appends the coded event
+values to the test dataset stored in self.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="bmine.bmine.validate">
+<tt class="descname">validate</tt><big>(</big><em>val_ds</em><big>)</big><a class="reference internal" href="../_modules/bmine.html#bmine.validate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bmine.bmine.validate" title="Permalink to this definition">¶</a></dt>
+<dd><p>This module takes a classified dataset and compares it against a validation dataset to access the 
+accuracy of the model used to classify the given datast. A stats.txt file is outputed with statistics on the 
+accuracy of the model.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="bmine.remove_stop_words">
+<tt class="descclassname">bmine.</tt><tt class="descname">remove_stop_words</tt><big>(</big><em>text</em><big>)</big><a class="headerlink" href="#bmine.remove_stop_words" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper function to remove stop words present in the data. Stop word list was created by manual review
+of all terms present in the data. This term list with frequencies of term in data was created by running  
+pp.review_terms().</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="event.html"
+                        title="previous chapter"><tt class="docutils literal"><span class="pre">event</span></tt> &#8212; event</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="main.html"
+                        title="next chapter"><tt class="docutils literal docutils literal"><span class="pre">main</span></tt> &#8212; main</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/modules/bmine.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="main.html" title="main — main"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="event.html" title="event — event"
+             >previous</a> |</li>
+        <li><a href="../index.html">BM_email v.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Michael Jugovich.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

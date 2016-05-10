@@ -1,0 +1,232 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>arff — arff loader &mdash; BM_email v.1 documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="BM_email v.1 documentation" href="../index.html" />
+    <link rel="next" title="Get Your File Downloads Here" href="../data/list.html" />
+    <link rel="prev" title="main — main" href="../modules/main.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../data/list.html" title="Get Your File Downloads Here"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../modules/main.html" title="main — main"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">BM_email v.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="arff-arff-loader">
+<h1><tt class="xref py py-mod docutils literal"><span class="pre">arff</span></tt> &#8212; arff loader<a class="headerlink" href="#arff-arff-loader" title="Permalink to this headline">¶</a></h1>
+<p>The arff handler was created for the ECT-584 final project to handle loading and saving files in the arff file format
+used by weka. The arff handler was built into the cardsharp open source project. Cardsharp is a data manipulation library
+for python that allows creation/loading of datasets, exposing these datasets to any python method/library of manipulating
+them, and then being able to save them in any format that cardsharp supports. This project used a strip down version of
+cardsharp to decrease the number of steps required to setup on and run the final project.</p>
+<p>For complete documentation of Cardsharp see <a class="reference external" href="http://cardsharp.norc.org/cardsharp/wiki/Home">http://cardsharp.norc.org/cardsharp/wiki/Home</a></p>
+<p>Example of working with arff file:</p>
+<p>To create a new dataset with 1 string variable and add 2 rows</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">cardsharp</span> <span class="kn">as</span> <span class="nn">cs</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dataset</span> <span class="o">=</span> <span class="n">cs</span><span class="o">.</span><span class="n">Dataset</span><span class="p">([</span><span class="s">&#39;a&#39;</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dataset</span><span class="o">.</span><span class="n">add_row</span><span class="p">([</span><span class="s">&#39;1&#39;</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dataset</span><span class="o">.</span><span class="n">add_row</span><span class="p">([</span><span class="s">&#39;2&#39;</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">dataset</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>      <span class="k">print</span> <span class="n">row</span>
+<span class="go">[u&#39;2&#39;]</span>
+<span class="go">[u&#39;1&#39;]</span>
+</pre></div>
+</div>
+<p>To add an integer varaible to the end of the dataset and a nominal variable at index = 0</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">dataset</span><span class="o">.</span><span class="n">variables</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s">&#39;b&#39;</span><span class="p">,</span> <span class="s">&#39;integer&#39;</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dataset</span><span class="o">.</span><span class="n">variables</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;c&#39;</span><span class="p">,</span> <span class="s">&#39;nominal&#39;</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">dataset</span><span class="o">.</span><span class="n">variables</span>
+<span class="go">VariableSet([Variable(&#39;c&#39;, u&#39;nominal&#39;), Variable(&#39;a&#39;, u&#39;string&#39;), Variable(&#39;b&#39;, u&#39;integer&#39;)])</span>
+</pre></div>
+</div>
+<p>Add some more data and save in arff format</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">nom_map</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;c&#39;</span> <span class="p">:</span> <span class="p">[</span><span class="s">&#39;Yes&#39;</span><span class="p">,</span> <span class="s">&#39;No&#39;</span><span class="p">]}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">if</span> <span class="n">x</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>                    <span class="n">dataset</span><span class="o">.</span><span class="n">add_row</span><span class="p">([</span><span class="s">&#39;Yes&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">x</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">else</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>                    <span class="n">dataset</span><span class="o">.</span><span class="n">add_row</span><span class="p">([</span><span class="s">&#39;No&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">x</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dataset</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span> <span class="n">__file__</span><span class="p">,</span> <span class="s">&#39;..&#39;</span><span class="p">,</span> <span class="s">&#39;samples&#39;</span><span class="p">,</span> <span class="s">&#39;arff_demo&#39;</span><span class="p">)),</span>
+<span class="gp">&gt;&gt;&gt; </span>             <span class="n">format</span> <span class="o">=</span> <span class="s">&#39;arff&#39;</span><span class="p">,</span> <span class="n">nominal_map</span> <span class="o">=</span> <span class="n">nom_map</span><span class="p">,</span> <span class="n">dataset</span> <span class="o">=</span> <span class="s">&#39;demo&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>See the saved file here <a class="reference download internal" href="../_downloads/demo17.arff"><tt class="xref download docutils literal"><span class="pre">demo.arff</span></tt></a>.</p>
+<span class="target" id="module-cardsharp.loaders.arff"></span><dl class="class">
+<dt id="cardsharp.loaders.arff.ArffHandler">
+<em class="property">class </em><tt class="descclassname">cardsharp.loaders.arff.</tt><tt class="descname">ArffHandler</tt><a class="reference internal" href="../_modules/cardsharp/loaders/arff.html#ArffHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cardsharp.loaders.arff.ArffHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Arff handler for loading and saving .arff files (weka).</p>
+<dl class="method">
+<dt id="cardsharp.loaders.arff.ArffHandler.can_load">
+<tt class="descname">can_load</tt><big>(</big><em>options</em><big>)</big><a class="reference internal" href="../_modules/cardsharp/loaders/arff.html#ArffHandler.can_load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cardsharp.loaders.arff.ArffHandler.can_load" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cardsharp.loaders.arff.ArffHandler.can_save">
+<tt class="descname">can_save</tt><big>(</big><em>options</em><big>)</big><a class="reference internal" href="../_modules/cardsharp/loaders/arff.html#ArffHandler.can_save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cardsharp.loaders.arff.ArffHandler.can_save" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cardsharp.loaders.arff.ArffHandler.get_dataset_info">
+<tt class="descname">get_dataset_info</tt><big>(</big><em>options</em><big>)</big><a class="reference internal" href="../_modules/cardsharp/loaders/arff.html#ArffHandler.get_dataset_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cardsharp.loaders.arff.ArffHandler.get_dataset_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the relation name and variable information.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cardsharp.loaders.arff.ArffHandler.list_datasets">
+<tt class="descname">list_datasets</tt><big>(</big><em>options</em><big>)</big><a class="reference internal" href="../_modules/cardsharp/loaders/arff.html#ArffHandler.list_datasets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cardsharp.loaders.arff.ArffHandler.list_datasets" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="cardsharp.loaders.arff.ArffHandler.loader">
+<em class="property">class </em><tt class="descname">loader</tt><big>(</big><em>options</em><big>)</big><a class="reference internal" href="../_modules/cardsharp/loaders/arff.html#ArffHandler.loader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cardsharp.loaders.arff.ArffHandler.loader" title="Permalink to this definition">¶</a></dt>
+<dd><p>arff loader</p>
+<dl class="method">
+<dt id="cardsharp.loaders.arff.ArffHandler.loader.rows">
+<tt class="descname">rows</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/cardsharp/loaders/arff.html#ArffHandler.loader.rows"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cardsharp.loaders.arff.ArffHandler.loader.rows" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="cardsharp.loaders.arff.ArffHandler.saver">
+<em class="property">class </em><tt class="descclassname">ArffHandler.</tt><tt class="descname">saver</tt><big>(</big><em>options</em><big>)</big><a class="reference internal" href="../_modules/cardsharp/loaders/arff.html#ArffHandler.saver"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cardsharp.loaders.arff.ArffHandler.saver" title="Permalink to this definition">¶</a></dt>
+<dd><p>arff saver</p>
+<dl class="method">
+<dt id="cardsharp.loaders.arff.ArffHandler.saver.rows">
+<tt class="descname">rows</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/cardsharp/loaders/arff.html#ArffHandler.saver.rows"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cardsharp.loaders.arff.ArffHandler.saver.rows" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="cardsharp.loaders.arff.dataset">
+<tt class="descclassname">cardsharp.loaders.arff.</tt><tt class="descname">dataset</tt><big>(</big><em>options</em><big>)</big><a class="reference internal" href="../_modules/cardsharp/loaders/arff.html#dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cardsharp.loaders.arff.dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Option for setting the relation name. Default = d1</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="cardsharp.loaders.arff.encoding">
+<tt class="descclassname">cardsharp.loaders.arff.</tt><tt class="descname">encoding</tt><big>(</big><em>options</em><big>)</big><a class="reference internal" href="../_modules/cardsharp/loaders/arff.html#encoding"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cardsharp.loaders.arff.encoding" title="Permalink to this definition">¶</a></dt>
+<dd><p>Option for specify the file encoding. Default is utf-8.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="cardsharp.loaders.arff.escape_eol_chars">
+<tt class="descclassname">cardsharp.loaders.arff.</tt><tt class="descname">escape_eol_chars</tt><big>(</big><em>options</em><big>)</big><a class="reference internal" href="../_modules/cardsharp/loaders/arff.html#escape_eol_chars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cardsharp.loaders.arff.escape_eol_chars" title="Permalink to this definition">¶</a></dt>
+<dd><p>Option for escaping eol characters. This should not be changed.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="cardsharp.loaders.arff.nominal_map">
+<tt class="descclassname">cardsharp.loaders.arff.</tt><tt class="descname">nominal_map</tt><big>(</big><em>options</em><big>)</big><a class="reference internal" href="../_modules/cardsharp/loaders/arff.html#nominal_map"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cardsharp.loaders.arff.nominal_map" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is a list of the class mapping for nominal variables. If the dataset contains nominal variables and 
+this mapping is not supplied during saving the SaveErrors will be raised. If the nominal_map is supplied but
+does not cover all possible occurences then the arff file will not load correctly in weka.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="cardsharp.loaders.arff.text_to_var">
+<tt class="descclassname">cardsharp.loaders.arff.</tt><tt class="descname">text_to_var</tt><big>(</big><em>v</em>, <em>value</em><big>)</big><a class="reference internal" href="../_modules/cardsharp/loaders/arff.html#text_to_var"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cardsharp.loaders.arff.text_to_var" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../modules/main.html"
+                        title="previous chapter"><tt class="docutils literal"><span class="pre">main</span></tt> &#8212; main</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../data/list.html"
+                        title="next chapter">Get Your File Downloads Here</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/cardsharp/arff.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../data/list.html" title="Get Your File Downloads Here"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../modules/main.html" title="main — main"
+             >previous</a> |</li>
+        <li><a href="../index.html">BM_email v.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Michael Jugovich.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,165 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>README &mdash; BM_email v.1 documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="BM_email v.1 documentation" href="../index.html" />
+    <link rel="next" title="Get Your File Downloads Here" href="../data/list.html" />
+    <link rel="prev" title="Full Project Report" href="../report/main.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../data/list.html" title="Get Your File Downloads Here"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../report/main.html" title="Full Project Report"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">BM_email v.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="readme">
+<h1>README<a class="headerlink" href="#readme" title="Permalink to this headline">¶</a></h1>
+<p>Steps to get this project working on your machine</p>
+<blockquote>
+<div><ol class="arabic">
+<li><p class="first">First download and install python 2.7 <a class="reference external" href="http://www.python.org/download/">http://www.python.org/download/</a></p>
+</li>
+<li><p class="first">Download and install setup-tools for python 2.7 to install required libraries for cardsharp
+<a class="reference external" href="http://pypi.python.org/pypi/setuptools#downloads">http://pypi.python.org/pypi/setuptools#downloads</a></p>
+</li>
+<li><p class="first">Open a cmd terminal</p>
+</li>
+<li><p class="first">add the pyhton scripts directory (below is if you installed to c:) to your path</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">path</span> <span class="o">=</span> <span class="o">%</span><span class="n">path</span><span class="o">%</span><span class="p">;</span><span class="n">c</span><span class="p">:</span>\<span class="n">python27</span>\<span class="n">scripts</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">issue the following commands to install libraries with setup-tools</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">easy_install</span> <span class="n">xlrd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">easy_install</span> <span class="n">xlwt</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">easy_install</span> <span class="n">xlutils</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">easy_install</span> <span class="n">pyyaml</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">download and install 7-zip <a class="reference external" href="http://www.7-zip.org/download.html">http://www.7-zip.org/download.html</a></p>
+</li>
+<li><p class="first">change the path in /src/cardsharp/csharp.config to where you installed 7-zip</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="n">csharp</span><span class="p">]</span>
+<span class="go">    &gt;&gt;&gt; 7zip_exe = c:\7-Zip\7z.exe</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">See <a class="reference external" href="http://cardsharp.norc.org/cardsharp/wiki/tutorial/tutorial.html#setting-up-cardsharp">http://cardsharp.norc.org/cardsharp/wiki/tutorial/tutorial.html#setting-up-cardsharp</a>
+for more info on cardsharp setup if needed</p>
+</li>
+<li><p class="first">Make sure the weka jar file is in your classpath</p>
+</li>
+<li><p class="first">navigate to <em>install_path</em>/src/ and type the following</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">event</span><span class="o">.</span><span class="n">py</span> <span class="n">run</span>
+</pre></div>
+</div>
+<p>or</p>
+<p>using eclipse setup a run configuration with on event.py with run as the arguement</p>
+</li>
+</ol>
+<blockquote>
+<div><ol class="arabic simple" start="11">
+<li>Take a break because the program takes about 5 minutes to run</li>
+</ol>
+</div></blockquote>
+</div></blockquote>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../report/main.html"
+                        title="previous chapter">Full Project Report</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../data/list.html"
+                        title="next chapter">Get Your File Downloads Here</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/README/rm.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../data/list.html" title="Get Your File Downloads Here"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../report/main.html" title="Full Project Report"
+             >previous</a> |</li>
+        <li><a href="../index.html">BM_email v.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Michael Jugovich.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

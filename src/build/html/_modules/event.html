@@ -1,0 +1,232 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>event &mdash; BM_email v.1 documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="BM_email v.1 documentation" href="../index.html" />
+    <link rel="up" title="Module code" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">BM_email v.1 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for event</h1><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">main</span> <span class="kn">import</span> <span class="n">_check_file</span><span class="p">,</span> <span class="n">run_extract</span><span class="p">,</span> <span class="n">run_process</span><span class="p">,</span> <span class="n">build_model</span><span class="p">,</span> <span class="n">classify</span><span class="p">,</span> <span class="n">run_clean</span><span class="p">,</span> <span class="n">stage_train</span><span class="p">,</span> <span class="n">validate</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">sys</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">__file__</span><span class="p">,</span> <span class="s">&#39;..&#39;</span><span class="p">,</span> <span class="s">&#39;..&#39;</span><span class="p">)))</span>
+
+<span class="k">def</span> <span class="nf">_check_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">as_dir</span> <span class="o">=</span> <span class="bp">False</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Helper function to validate directory and file paths.&#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
+        <span class="k">print</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s"> does not exist.&quot;</span> <span class="o">%</span> <span class="n">file_path</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                    
+    <span class="k">if</span> <span class="n">as_dir</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
+            <span class="k">print</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s"> is not a directory.&quot;</span> <span class="o">%</span> <span class="n">file_path</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
+            <span class="k">print</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s"> is not a file.&quot;</span> <span class="o">%</span> <span class="n">file_path</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            
+<span class="k">def</span> <span class="nf">_check_format</span><span class="p">(</span><span class="n">format</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Helper function to validate format can be handled by version of cardsharp in this project.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">format</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;csharp&#39;</span><span class="p">,</span> <span class="s">&#39;excel&#39;</span><span class="p">,</span> <span class="s">&#39;text&#39;</span><span class="p">,</span> <span class="s">&#39;csv&#39;</span><span class="p">,</span> <span class="s">&#39;spss&#39;</span><span class="p">,</span> <span class="s">&#39;del&#39;</span><span class="p">,</span> <span class="s">&#39;arff&#39;</span><span class="p">]:</span>
+        <span class="k">print</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s"> not a valid file type.&quot;</span> <span class="o">%</span> <span class="n">format</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    
+<div class="viewcode-block" id="stage"><a class="viewcode-back" href="../modules/event.html#event.stage">[docs]</a><span class="k">def</span> <span class="nf">stage</span><span class="p">(</span><span class="n">args</span><span class="p">):</span> 
+    <span class="sd">&quot;&quot;&quot;Wrapper function to run cmd event.stage command. Validates argument parameters and then calls run_extract&quot;&quot;&quot;</span>
+    <span class="n">_check_file</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">as_dir</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+    <span class="n">_check_file</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">as_dir</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+    
+    <span class="k">print</span> <span class="s">&quot;Staging data...&quot;</span>
+    
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">run_extract</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+            <span class="k">raise</span>
+        <span class="k">print</span> <span class="s">&quot;Fatal error. Aborting stage and terminating program. Run with -v 1 for verbose output with more details.&quot;</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    
+    <span class="k">print</span> <span class="s">&quot;done.&quot;</span>
+</div>
+<span class="k">def</span> <span class="nf">_classify</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Placeholder for classify command&quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+
+<span class="k">def</span> <span class="nf">_apply_model</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Placeholder for appy_model command&quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+
+<span class="k">def</span> <span class="nf">_process</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Placeholder for process command&quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+
+<span class="k">def</span> <span class="nf">_example_run</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Command to run example for ECT-584. First runs the extract on the raw emails to produce a raw dataset.</span>
+<span class="sd">    This dataset is then cleaned and the training data is staged to produce a pre_processed dataset test dataset</span>
+<span class="sd">    with predicted event values appended. This is then processed to create a test and training arff dataset.</span>
+<span class="sd">    The training dataset is used to create a classification model using weka&#39;s J48 implementation of the C4.5 </span>
+<span class="sd">    classification algorithm. Once the model has been created the test dataset has events predicated and these </span>
+<span class="sd">    predicated values are appended to the test dataset and saved to an excel file. Then this file is loaded and</span>
+<span class="sd">    compared against the validation dataset to access the accuracy of the model.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c">#calls main.py run)extract with relative file paths</span>
+    <span class="n">run_extract</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">__file__</span><span class="p">,</span> <span class="s">&#39;..&#39;</span><span class="p">,</span> <span class="s">&#39;..&#39;</span><span class="p">,</span> <span class="s">&#39;data&#39;</span><span class="p">,</span> <span class="s">&#39;raw&#39;</span><span class="p">)),</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">__file__</span><span class="p">,</span> <span class="s">&#39;..&#39;</span><span class="p">,</span> <span class="s">&#39;..&#39;</span><span class="p">,</span> <span class="s">&#39;data&#39;</span><span class="p">,</span> <span class="s">&#39;stage&#39;</span><span class="p">)),</span> 
+                <span class="s">&#39;extract&#39;</span><span class="p">,</span> <span class="s">&#39;text&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+    <span class="c">#calls main.py run_clean with relative file paths</span>
+    <span class="n">run_clean</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">__file__</span><span class="p">,</span> <span class="s">&#39;..&#39;</span><span class="p">,</span> <span class="s">&#39;..&#39;</span><span class="p">,</span> <span class="s">&#39;data&#39;</span><span class="p">,</span> <span class="s">&#39;stage&#39;</span><span class="p">)),</span>
+              <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">__file__</span><span class="p">,</span> <span class="s">&#39;..&#39;</span><span class="p">,</span> <span class="s">&#39;..&#39;</span><span class="p">,</span> <span class="s">&#39;data&#39;</span><span class="p">,</span> <span class="s">&#39;stage&#39;</span><span class="p">)),</span>
+              <span class="s">&#39;extract&#39;</span><span class="p">,</span> <span class="s">&#39;text&#39;</span><span class="p">)</span>
+    <span class="c">#calls main.py stage_train with relative file paths</span>
+    <span class="n">stage_train</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">__file__</span><span class="p">,</span> <span class="s">&#39;..&#39;</span><span class="p">,</span> <span class="s">&#39;..&#39;</span><span class="p">,</span> <span class="s">&#39;data&#39;</span><span class="p">,</span> <span class="s">&#39;stage&#39;</span><span class="p">)),</span>
+                <span class="s">&#39;extract_cleaned&#39;</span><span class="p">,</span>
+                <span class="s">&#39;text&#39;</span><span class="p">,</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">__file__</span><span class="p">,</span> <span class="s">&#39;..&#39;</span><span class="p">,</span> <span class="s">&#39;..&#39;</span><span class="p">,</span> <span class="s">&#39;data&#39;</span><span class="p">,</span> <span class="s">&#39;train&#39;</span><span class="p">)),</span>
+                <span class="s">&#39;t_data&#39;</span><span class="p">,</span>
+                <span class="s">&#39;excel&#39;</span><span class="p">,</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">__file__</span><span class="p">,</span> <span class="s">&#39;..&#39;</span><span class="p">,</span> <span class="s">&#39;..&#39;</span><span class="p">,</span> <span class="s">&#39;data&#39;</span><span class="p">,</span> <span class="s">&#39;stage&#39;</span><span class="p">)))</span>
+    <span class="c">#calls main.py run_process with relative file paths</span>
+    <span class="n">run_process</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">__file__</span><span class="p">,</span> <span class="s">&#39;..&#39;</span><span class="p">,</span> <span class="s">&#39;..&#39;</span><span class="p">,</span> <span class="s">&#39;data&#39;</span><span class="p">,</span> <span class="s">&#39;stage&#39;</span><span class="p">)),</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">__file__</span><span class="p">,</span> <span class="s">&#39;..&#39;</span><span class="p">,</span> <span class="s">&#39;..&#39;</span><span class="p">,</span> <span class="s">&#39;data&#39;</span><span class="p">,</span> <span class="s">&#39;process&#39;</span><span class="p">)),</span>
+                <span class="s">&#39;pre_processed&#39;</span><span class="p">,</span> <span class="s">&#39;text&#39;</span><span class="p">)</span>
+    <span class="c">#calls main.py build_model with relative file paths</span>
+    <span class="n">build_model</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">__file__</span><span class="p">,</span> <span class="s">&#39;..&#39;</span><span class="p">,</span> <span class="s">&#39;..&#39;</span><span class="p">,</span> <span class="s">&#39;data&#39;</span><span class="p">,</span> <span class="s">&#39;process&#39;</span><span class="p">,</span> <span class="s">&#39;train.arff&#39;</span><span class="p">)),</span> 
+                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">__file__</span><span class="p">,</span> <span class="s">&#39;..&#39;</span><span class="p">,</span> <span class="s">&#39;..&#39;</span><span class="p">,</span> <span class="s">&#39;data&#39;</span><span class="p">,</span> <span class="s">&#39;process&#39;</span><span class="p">,</span> <span class="s">&#39;model.model&#39;</span><span class="p">)))</span>        
+    <span class="c">#calls main.py classify with relative file paths</span>
+    <span class="n">classify</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">__file__</span><span class="p">,</span> <span class="s">&#39;..&#39;</span><span class="p">,</span> <span class="s">&#39;..&#39;</span><span class="p">,</span> <span class="s">&#39;data&#39;</span><span class="p">,</span> <span class="s">&#39;process&#39;</span><span class="p">,</span> <span class="s">&#39;processed&#39;</span><span class="p">)),</span> 
+             <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">__file__</span><span class="p">,</span> <span class="s">&#39;..&#39;</span><span class="p">,</span> <span class="s">&#39;..&#39;</span><span class="p">,</span> <span class="s">&#39;data&#39;</span><span class="p">,</span> <span class="s">&#39;process&#39;</span><span class="p">,</span> <span class="s">&#39;model.model&#39;</span><span class="p">)),</span> 
+             <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">__file__</span><span class="p">,</span> <span class="s">&#39;..&#39;</span><span class="p">,</span> <span class="s">&#39;..&#39;</span><span class="p">,</span> <span class="s">&#39;data&#39;</span><span class="p">,</span> <span class="s">&#39;process&#39;</span><span class="p">,</span> <span class="s">&#39;output.xls&#39;</span><span class="p">)),</span>
+            <span class="s">&#39;event&#39;</span><span class="p">)</span>
+    <span class="c">#calls main.py validate with relative file paths</span>
+    <span class="n">validate</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">__file__</span><span class="p">,</span> <span class="s">&#39;..&#39;</span><span class="p">,</span> <span class="s">&#39;..&#39;</span><span class="p">,</span> <span class="s">&#39;data&#39;</span><span class="p">,</span> <span class="s">&#39;process&#39;</span><span class="p">)),</span> <span class="s">&#39;output&#39;</span><span class="p">)</span>
+
+<span class="c">#Create cmd argument parsers</span>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span> <span class="o">=</span> <span class="s">&#39;Run the Burning Man Email programs.&#39;</span><span class="p">)</span>
+
+    <span class="n">subparsers</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_subparsers</span><span class="p">(</span><span class="n">help</span> <span class="o">=</span> <span class="s">&#39;sub-command help&#39;</span><span class="p">)</span>
+    
+    <span class="n">stage</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;stage&#39;</span><span class="p">,</span> <span class="n">help</span> <span class="o">=</span> <span class="s">&#39;stage help&#39;</span><span class="p">)</span>
+    <span class="n">stage</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-d&#39;</span><span class="p">,</span> <span class="s">&#39;--data_dir&#39;</span><span class="p">,</span> 
+                       <span class="n">help</span>    <span class="o">=</span> <span class="s">&quot;The path to the directory which contains the raw html emails. Default = </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> 
+                                                        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">__file__</span><span class="p">,</span> <span class="s">&#39;..&#39;</span><span class="p">,</span> <span class="s">&#39;..&#39;</span><span class="p">,</span> <span class="s">&#39;data&#39;</span><span class="p">,</span> <span class="s">&#39;raw&#39;</span><span class="p">)),</span>
+                       <span class="n">default</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">__file__</span><span class="p">,</span> <span class="s">&#39;..&#39;</span><span class="p">,</span> <span class="s">&#39;..&#39;</span><span class="p">,</span><span class="s">&#39;data&#39;</span><span class="p">,</span> <span class="s">&#39;raw&#39;</span><span class="p">)),</span>
+                       <span class="p">)</span>
+    <span class="n">stage</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-s&#39;</span><span class="p">,</span> <span class="s">&#39;--save_file&#39;</span><span class="p">,</span> 
+                       <span class="n">help</span>    <span class="o">=</span> <span class="s">&quot;The path to the raw dataset save file. Default = </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> 
+                                                        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">__file__</span><span class="p">,</span> <span class="s">&#39;..&#39;</span><span class="p">,</span> <span class="s">&#39;..&#39;</span><span class="p">,</span> <span class="s">&#39;data&#39;</span><span class="p">,</span> <span class="s">&#39;stage&#39;</span><span class="p">)),</span>
+                       <span class="n">default</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">__file__</span><span class="p">,</span> <span class="s">&#39;..&#39;</span><span class="p">,</span> <span class="s">&#39;..&#39;</span><span class="p">,</span> <span class="s">&#39;data&#39;</span><span class="p">,</span> <span class="s">&#39;stage&#39;</span><span class="p">)),</span>
+                       <span class="p">)</span>
+    <span class="n">stage</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-v&#39;</span><span class="p">,</span> <span class="s">&#39;--verbose&#39;</span><span class="p">,</span> 
+                       <span class="n">help</span>    <span class="o">=</span> <span class="s">&quot;Verbose output: a value of 1 is on, and 0 is off. Default = 0 (off).&quot;</span><span class="p">,</span>
+                       <span class="n">default</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+                       <span class="p">)</span>
+    <span class="n">stage</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">func</span> <span class="o">=</span> <span class="n">_stage</span><span class="p">)</span>
+    
+    <span class="n">process</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;process&#39;</span><span class="p">,</span> <span class="n">help</span> <span class="o">=</span> <span class="s">&#39;run help&#39;</span><span class="p">)</span>
+    <span class="n">process</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-d&#39;</span><span class="p">,</span> <span class="s">&#39;--data_file&#39;</span><span class="p">,</span> 
+                       <span class="n">help</span>    <span class="o">=</span> <span class="s">&quot;The path to the raw dataset file. Default = </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> 
+                                                        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">__file__</span><span class="p">,</span> <span class="s">&#39;..&#39;</span><span class="p">,</span> <span class="s">&#39;..&#39;</span><span class="p">,</span> <span class="s">&#39;data&#39;</span><span class="p">,</span> <span class="s">&#39;raw&#39;</span><span class="p">)),</span>
+                       <span class="n">default</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">__file__</span><span class="p">,</span> <span class="s">&#39;..&#39;</span><span class="p">,</span> <span class="s">&#39;..&#39;</span><span class="p">,</span><span class="s">&#39;data&#39;</span><span class="p">,</span> <span class="s">&#39;raw&#39;</span><span class="p">)),</span>
+                       <span class="p">)</span>
+    <span class="n">process</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-s&#39;</span><span class="p">,</span> <span class="s">&#39;--save_dir&#39;</span><span class="p">,</span> 
+                       <span class="n">help</span>    <span class="o">=</span> <span class="s">&quot;The path to the raw dataset should be saved. Default = </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> 
+                                                        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">__file__</span><span class="p">,</span> <span class="s">&#39;..&#39;</span><span class="p">,</span> <span class="s">&#39;..&#39;</span><span class="p">,</span> <span class="s">&#39;data&#39;</span><span class="p">,</span> <span class="s">&#39;stage&#39;</span><span class="p">)),</span>
+                       <span class="n">default</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">__file__</span><span class="p">,</span> <span class="s">&#39;..&#39;</span><span class="p">,</span> <span class="s">&#39;..&#39;</span><span class="p">,</span> <span class="s">&#39;data&#39;</span><span class="p">,</span> <span class="s">&#39;stage&#39;</span><span class="p">)),</span>
+                       <span class="p">)</span>
+    <span class="n">process</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-v&#39;</span><span class="p">,</span> <span class="s">&#39;--verbose&#39;</span><span class="p">,</span> 
+                       <span class="n">help</span>    <span class="o">=</span> <span class="s">&quot;Verbose output: a value of 1 is on, and 0 is off. Default = 0 (off).&quot;</span><span class="p">,</span>
+                       <span class="n">default</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+                       <span class="p">)</span>
+    <span class="n">process</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">func</span> <span class="o">=</span> <span class="n">_process</span><span class="p">)</span>
+    
+    <span class="n">run</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;run&#39;</span><span class="p">,</span> <span class="n">help</span> <span class="o">=</span> <span class="s">&#39;run help&#39;</span><span class="p">)</span>
+    <span class="n">run</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">func</span> <span class="o">=</span> <span class="n">_example_run</span><span class="p">)</span>
+    
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+    <span class="n">args</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">BM_email v.1 documentation</a> &raquo;</li>
+          <li><a href="index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Michael Jugovich.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

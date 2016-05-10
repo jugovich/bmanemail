@@ -1,0 +1,295 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>main &mdash; BM_email v.1 documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="BM_email v.1 documentation" href="../index.html" />
+    <link rel="up" title="Module code" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">BM_email v.1 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for main</h1><div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">bmine</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">__file__</span><span class="p">,</span> <span class="s">&#39;..&#39;</span><span class="p">,</span> <span class="s">&#39;..&#39;</span><span class="p">)))</span>
+<span class="kn">import</span> <span class="nn">cardsharp</span> <span class="kn">as</span> <span class="nn">cs</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">izip</span>
+
+<span class="n">variables</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;path&#39;</span><span class="p">,</span> <span class="s">&#39;list_tag&#39;</span><span class="p">,</span> <span class="s">&#39;subject&#39;</span><span class="p">,</span> <span class="s">&#39;from&#39;</span><span class="p">,</span> <span class="s">&#39;to&#39;</span><span class="p">,</span> <span class="s">&#39;time&#39;</span><span class="p">,</span> <span class="s">&#39;sender&#39;</span><span class="p">,</span> <span class="s">&#39;date&#39;</span><span class="p">,</span> <span class="s">&#39;cc&#39;</span><span class="p">,</span> <span class="s">&#39;body&#39;</span><span class="p">]</span>
+
+<span class="k">def</span> <span class="nf">_check_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">as_dir</span> <span class="o">=</span> <span class="bp">False</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
+        <span class="k">print</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s"> does not exist.&#39;</span> <span class="o">%</span> <span class="n">file_path</span>
+        <span class="k">return</span> <span class="bp">False</span>
+                    
+    <span class="k">if</span> <span class="n">as_dir</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
+            <span class="k">print</span> <span class="s">&#39;Warning: </span><span class="si">%s</span><span class="s"> is not a directory.&#39;</span> <span class="o">%</span> <span class="n">file_path</span>
+            <span class="k">return</span> <span class="bp">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">True</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
+            <span class="k">print</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s"> is not a file.&#39;</span> <span class="o">%</span> <span class="n">file_path</span>
+            <span class="k">return</span> <span class="bp">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">True</span>
+
+<div class="viewcode-block" id="run_extract"><a class="viewcode-back" href="../modules/main.html#main.run_extract">[docs]</a><span class="k">def</span> <span class="nf">run_extract</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">save_dir</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">format</span><span class="p">,</span> <span class="n">verbose</span><span class="p">):</span>
+    <span class="k">print</span> <span class="s">&#39;...extracting raw emails (this is gonna take a bit)...&#39;</span>
+    <span class="n">dirs</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">extractor</span> <span class="o">=</span> <span class="n">bmine</span><span class="o">.</span><span class="n">bmine</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">save_dir</span><span class="p">)</span>
+    <span class="k">for</span> <span class="nb">dir</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">data_dir</span><span class="p">):</span>
+        <span class="n">list_index</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">full_count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">dir_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="nb">dir</span><span class="p">,</span> <span class="s">&#39;messages&#39;</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="k">print</span> <span class="s">&#39;Extracting emails from </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">+</span> <span class="n">dir_path</span>
+            <span class="n">extractor</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="bp">True</span>
+        
+        <span class="n">list_name</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">&#39;[a-z]+(-announce|-list)&#39;</span><span class="p">,</span> <span class="nb">dir</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">_check_file</span><span class="p">(</span><span class="n">dir_path</span><span class="p">,</span> <span class="n">as_dir</span> <span class="o">=</span> <span class="bp">True</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">email</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dir_path</span><span class="p">)):</span>
+                <span class="n">full_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dir_path</span><span class="p">,</span> <span class="n">email</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">_check_file</span><span class="p">(</span><span class="n">full_path</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                        <span class="k">print</span> <span class="s">&#39;...extracting email </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">full_path</span>
+                    <span class="n">extractor</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="n">full_path</span><span class="p">,</span> <span class="n">list_name</span><span class="p">,</span> <span class="n">index</span> <span class="o">=</span> <span class="n">list_index</span><span class="p">,</span> <span class="n">review</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
+                    <span class="n">list_index</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">full_count</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="c">#if int((full_count / 3500.0) * 10.0) in [x + 1 for x in range(10)]:</span>
+            <span class="c">#print &#39;...still extracting: %s complete...&#39; % (str(int((full_count / 3500.0) * 100.0)) + &#39;%&#39;)</span>
+                
+        <span class="n">dirs</span><span class="p">[</span><span class="n">list_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">full_count</span><span class="p">,</span> <span class="n">list_index</span><span class="p">)</span>
+    <span class="n">cs</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>    
+    <span class="k">print</span> <span class="s">&#39;Extraction Compelete with </span><span class="si">%i</span><span class="s"> emails failed to parse...&#39;</span> <span class="o">%</span> <span class="n">extractor</span><span class="o">.</span><span class="n">extract_err_c</span>
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="k">print</span> <span class="s">&#39;list name : email count&#39;</span>
+        <span class="k">print</span> <span class="n">dirs</span>
+        
+    <span class="k">print</span> <span class="s">&#39;Saving dataset...&#39;</span>
+    <span class="n">extractor</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">format</span><span class="p">)</span>
+    <span class="n">cs</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+    <span class="k">print</span> <span class="s">&#39;save complete...&#39;</span>
+    </div>
+<div class="viewcode-block" id="run_singleExtract"><a class="viewcode-back" href="../modules/main.html#main.run_singleExtract">[docs]</a><span class="k">def</span> <span class="nf">run_singleExtract</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">save_dir</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;This module can extract a single raw directory, (used for testing purposes).&quot;&quot;&quot;</span>
+    <span class="n">list_index</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">full_count</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">extractor</span> <span class="o">=</span> <span class="n">bmine</span><span class="o">.</span><span class="n">bmine</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">save_dir</span><span class="p">)</span>
+    
+    <span class="n">dir_path</span> <span class="o">=</span>  <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="s">&#39;portland-list_20110526-2345&#39;</span><span class="p">,</span> <span class="s">&#39;messages&#39;</span><span class="p">)</span>
+    <span class="n">list_name</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">&#39;[a-z]+(-announce|-list)(?=_)&#39;</span><span class="p">,</span> <span class="s">&#39;portland-list_20110526-2345&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">email</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">dir_path</span><span class="p">):</span>
+        <span class="n">full_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dir_path</span><span class="p">,</span> <span class="n">email</span><span class="p">)</span>
+        <span class="k">print</span> <span class="n">full_path</span>
+        <span class="k">if</span> <span class="n">_check_file</span><span class="p">(</span><span class="n">full_path</span><span class="p">):</span>
+            <span class="n">extractor</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="n">full_path</span><span class="p">,</span> <span class="n">list_name</span><span class="p">,</span> <span class="n">index</span> <span class="o">=</span> <span class="n">list_index</span><span class="p">)</span>
+            <span class="n">list_index</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">full_count</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">full_count</span> <span class="o">==</span> <span class="mi">75</span><span class="p">:</span>
+            <span class="k">break</span>
+    <span class="k">print</span> <span class="n">full_count</span>
+    <span class="k">print</span> <span class="n">list_index</span>
+    <span class="n">extractor</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s">&#39;portland-list_20110526-23451.xls&#39;</span><span class="p">,</span> <span class="s">&#39;excel&#39;</span><span class="p">)</span>
+    </div>
+<div class="viewcode-block" id="gen_sample"><a class="viewcode-back" href="../modules/main.html#main.gen_sample">[docs]</a><span class="k">def</span> <span class="nf">gen_sample</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="n">save_path</span><span class="p">,</span> <span class="n">sample</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;terer&#39;&#39;&#39;</span>
+    <span class="n">training</span> <span class="o">=</span> <span class="n">cs</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">filename</span> <span class="o">=</span> <span class="n">data_path</span><span class="p">,</span> <span class="n">format</span> <span class="o">=</span> <span class="s">&#39;excel&#39;</span><span class="p">,</span> <span class="n">sample</span> <span class="o">=</span> <span class="n">sample</span><span class="p">)</span>
+    <span class="n">cs</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+    <span class="n">training</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">filename</span> <span class="o">=</span> <span class="n">save_path</span><span class="p">,</span> <span class="n">format</span> <span class="o">=</span> <span class="s">&#39;excel&#39;</span><span class="p">,</span> <span class="n">overwrite</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="stage_train"><a class="viewcode-back" href="../modules/main.html#main.stage_train">[docs]</a><span class="k">def</span> <span class="nf">stage_train</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">data_filename</span><span class="p">,</span> <span class="n">data_format</span><span class="p">,</span> <span class="n">train_dir</span><span class="p">,</span> <span class="n">train_filename</span><span class="p">,</span> <span class="n">train_format</span><span class="p">,</span> <span class="n">save_dir</span><span class="p">):</span>
+    <span class="n">trn</span> <span class="o">=</span> <span class="n">bmine</span><span class="o">.</span><span class="n">bmine</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">save_dir</span><span class="p">)</span> 
+    <span class="n">trn</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">data_filename</span><span class="p">,</span> <span class="n">data_format</span><span class="p">)</span>
+    <span class="n">trn</span><span class="o">.</span><span class="n">stage_training</span><span class="p">(</span><span class="n">train_dir</span><span class="p">,</span> <span class="n">train_filename</span><span class="p">,</span> <span class="n">train_format</span><span class="p">)</span><span class="c">#TODO add args</span>
+    </div>
+<div class="viewcode-block" id="run_process"><a class="viewcode-back" href="../modules/main.html#main.run_process">[docs]</a><span class="k">def</span> <span class="nf">run_process</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">save_dir</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">format</span><span class="p">):</span>
+    <span class="k">print</span> <span class="s">&#39;...processing data...&#39;</span>
+    <span class="n">proc</span> <span class="o">=</span> <span class="n">bmine</span><span class="o">.</span><span class="n">bmine</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">save_dir</span><span class="p">)</span>
+    <span class="n">proc</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">format</span><span class="p">)</span>
+    <span class="n">proc</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">save_dir</span><span class="p">)</span>
+    <span class="k">print</span> <span class="s">&#39;complete.&#39;</span>
+    </div>
+<div class="viewcode-block" id="run_review_terms"><a class="viewcode-back" href="../modules/main.html#main.run_review_terms">[docs]</a><span class="k">def</span> <span class="nf">run_review_terms</span><span class="p">():</span>
+    <span class="n">train</span> <span class="o">=</span> <span class="n">bmine</span><span class="o">.</span><span class="n">bmine</span><span class="p">(</span><span class="s">r&#39;D:\school\ect584\final\Data\stage</span><span class="se">\\</span><span class="s">&#39;</span><span class="p">,</span> <span class="s">r&#39;D:\school\ect584\final\Data\stage</span><span class="se">\\</span><span class="s">&#39;</span><span class="p">)</span>
+    <span class="n">train</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s">r&#39;D:\school\ect584\final\Data\stage\cleaned.txt&#39;</span><span class="p">,</span> <span class="s">&#39;text&#39;</span><span class="p">)</span>
+    <span class="n">train</span><span class="o">.</span><span class="n">review_terms</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="run_clean"><a class="viewcode-back" href="../modules/main.html#main.run_clean">[docs]</a><span class="k">def</span> <span class="nf">run_clean</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">save_dir</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">format</span><span class="p">):</span>
+    <span class="n">cln</span> <span class="o">=</span> <span class="n">bmine</span><span class="o">.</span><span class="n">bmine</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">save_dir</span><span class="p">)</span>
+    <span class="n">cln</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">format</span><span class="p">)</span>
+    <span class="n">cln</span><span class="o">.</span><span class="n">clean</span><span class="p">()</span>
+    </div>
+<div class="viewcode-block" id="build_model"><a class="viewcode-back" href="../modules/main.html#main.build_model">[docs]</a><span class="k">def</span> <span class="nf">build_model</span><span class="p">(</span><span class="n">training_file</span><span class="p">,</span> <span class="n">model_dir</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Creates a C4.5 classification model (weka J48 classifier) using a supplied arff training file </span>
+<span class="sd">    and outputs the completed model to supplied model_dir. The weka.classifiers.trees.J48 is called</span>
+<span class="sd">    using pythons built-in subprocess module by calling the java process + a list of command line arguements.</span>
+<span class="sd">    See http://docs.python.org/library/subprocess.html&quot;&quot;&quot;</span>
+    <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">([</span><span class="s">&#39;java&#39;</span><span class="p">,</span> <span class="s">&#39;weka.classifiers.trees.J48&#39;</span><span class="p">,</span> 
+                     <span class="s">&#39;-C&#39;</span><span class="p">,</span> <span class="s">&#39;0.25&#39;</span><span class="p">,</span> 
+                     <span class="s">&#39;-M&#39;</span><span class="p">,</span> <span class="s">&#39;2&#39;</span><span class="p">,</span> 
+                     <span class="s">&#39;-t&#39;</span><span class="p">,</span> <span class="n">training_file</span><span class="p">,</span> 
+                     <span class="s">&#39;-d&#39;</span><span class="p">,</span> <span class="n">model_dir</span><span class="p">])</span>
+        </div>
+<div class="viewcode-block" id="classify"><a class="viewcode-back" href="../modules/main.html#main.classify">[docs]</a><span class="k">def</span> <span class="nf">classify</span><span class="p">(</span><span class="n">test_file</span><span class="p">,</span> <span class="n">model_file</span><span class="p">,</span> <span class="n">save_file</span><span class="p">,</span> <span class="n">predict_var_name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Apply a C4.5 classification model &quot;&quot;&quot;</span>
+    <span class="n">test</span> <span class="o">=</span> <span class="n">cs</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">filename</span> <span class="o">=</span> <span class="n">test_file</span> <span class="o">+</span> <span class="s">&#39;.arff&#39;</span><span class="p">,</span> <span class="n">format</span> <span class="o">=</span> <span class="s">&#39;arff&#39;</span><span class="p">)</span>
+    <span class="n">cs</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+    <span class="n">test</span><span class="o">.</span><span class="n">variables</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;predicted&#39;</span><span class="p">)</span>
+    <span class="n">test</span><span class="o">.</span><span class="n">variables</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s">&#39;prediciton_error&#39;</span><span class="p">,</span> <span class="s">&#39;float&#39;</span><span class="p">))</span>
+    <span class="n">predictions</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">([</span><span class="s">&#39;java&#39;</span><span class="p">,</span> <span class="s">&#39;weka.classifiers.trees.J48&#39;</span><span class="p">,</span> 
+                           <span class="s">&#39;-p&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">test</span><span class="o">.</span><span class="n">variables</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">predict_var_name</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> 
+                           <span class="s">&#39;-T&#39;</span><span class="p">,</span> <span class="n">test_file</span> <span class="o">+</span> <span class="s">&#39;.arff&#39;</span><span class="p">,</span> 
+                           <span class="s">&#39;-l&#39;</span><span class="p">,</span> <span class="n">model_file</span><span class="p">])</span>
+    <span class="n">predictions</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&#39;[ ]+\d+[ ]+.+?:.+?[ ]+(.+?:.+?)[ ]+(\d+\.\d+)&#39;</span><span class="p">,</span> <span class="n">predictions</span><span class="p">,</span> <span class="n">flags</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">line</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">izip</span><span class="p">(</span><span class="n">predictions</span><span class="p">,</span> <span class="n">test</span><span class="p">):</span>
+        <span class="n">row</span><span class="p">[</span><span class="s">&#39;predicted&#39;</span><span class="p">],</span> <span class="n">row</span><span class="p">[</span><span class="s">&#39;prediciton_error&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">float</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">cs</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">test_file</span><span class="p">,</span> <span class="s">&#39;..&#39;</span><span class="p">,</span> <span class="s">&#39;..&#39;</span><span class="p">,</span> <span class="s">&#39;stage&#39;</span><span class="p">,</span> <span class="s">&#39;pre_processed.txt&#39;</span><span class="p">)),</span> <span class="n">format</span> <span class="o">=</span> <span class="s">&#39;text&#39;</span><span class="p">)</span>
+    <span class="n">cs</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+    <span class="n">path_ids</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="kn">from</span> <span class="nn">re</span> <span class="kn">import</span> <span class="n">sub</span>
+    
+    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
+        <span class="n">path_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sub</span><span class="p">(</span><span class="s">&#39;.+?data</span><span class="se">\\\\</span><span class="s">raw</span><span class="se">\\\\</span><span class="s">&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">,</span> <span class="n">row</span><span class="p">[</span><span class="s">&#39;path&#39;</span><span class="p">]))</span> 
+    
+    <span class="n">test</span><span class="o">.</span><span class="n">variables</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;path&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">test</span><span class="p">:</span>
+        <span class="n">row</span><span class="p">[</span><span class="s">&#39;path&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">path_ids</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                
+    <span class="n">test</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">filename</span> <span class="o">=</span> <span class="n">save_file</span><span class="p">,</span> <span class="n">format</span> <span class="o">=</span> <span class="s">&#39;excel&#39;</span><span class="p">)</span>
+    <span class="n">cs</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="validate"><a class="viewcode-back" href="../modules/main.html#main.validate">[docs]</a><span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+    <span class="n">val_ds</span> <span class="o">=</span> <span class="n">cs</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">__file__</span><span class="p">,</span> <span class="s">&#39;..&#39;</span><span class="p">,</span> <span class="s">&#39;..&#39;</span><span class="p">,</span> <span class="s">&#39;data&#39;</span><span class="p">,</span> <span class="s">&#39;validate&#39;</span><span class="p">,</span> <span class="s">&#39;v_data.xls&#39;</span><span class="p">)),</span> <span class="n">format</span> <span class="o">=</span> <span class="s">&#39;excel&#39;</span><span class="p">)</span>
+    <span class="n">cs</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+    <span class="n">val</span> <span class="o">=</span> <span class="n">bmine</span><span class="o">.</span><span class="n">bmine</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">)</span>
+    <span class="n">val</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s">&#39;excel&#39;</span><span class="p">)</span>
+    <span class="n">val</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">val_ds</span><span class="p">)</span>
+<span class="c">#        if search(&#39;inst#[ ]*actual[ ]*predicted[ ]*error[ ]*prediction&#39;, line):</span>
+<span class="c">#            results = cs.Dataset ([&#39;id&#39;, &#39;instance&#39;, &#39;actual&#39;, &#39;predicted&#39;, &#39;error&#39;])</span>
+<span class="c">#        </span>
+<span class="c">#        if search(&#39;\d+&#39;, line):</span>
+<span class="c">#            data = search(&#39;[ ]*(\d+)[ ]*(\d+:\?)[ ]*(\d+:[a-z]+)[ ]*(\d+\.\d+|\d+)&#39;, line.lower())</span>
+<span class="c">#            rows[ids.pop(0)] = ([data.groups()[x] for x in range(4)])</span>
+
+<span class="c">#run_clean()</span>
+<span class="c">#cs.wait()</span>
+<span class="c">#run_review_terms()</span>
+<span class="c">#cs.wait()</span>
+<span class="c">#ds = cs.load(filename = r&#39;D:\school\ect584\final\Data\stage\cleaned_new.txt&#39;, format = &#39;text&#39;)</span>
+<span class="c">#ds.variables.drop(&#39;path&#39;)</span>
+<span class="c">#ds.variables.drop(&#39;list-name&#39;)</span>
+<span class="c">#ds.variables.drop(&#39;list_tag&#39;)</span>
+<span class="c">#ds.variables.drop(&#39;subject&#39;)</span>
+<span class="c">#ds.variables.drop(&#39;from&#39;)</span>
+<span class="c">#ds.variables.drop(&#39;to&#39;)</span>
+<span class="c">#ds.variables.drop(&#39;time&#39;)</span>
+<span class="c">#ds.variables.drop(&#39;sender&#39;)</span>
+<span class="c">#ds.variables.drop(&#39;date&#39;)</span>
+<span class="c">#ds.variables.drop(&#39;cc&#39;)</span>
+<span class="c">#cs.wait()</span>
+<span class="c">#ds.save(filename = r&#39;D:\school\ect584\final\Data\stage\cleaned.arff&#39;, format = &#39;arff&#39;, overwrite = True)</span>
+<span class="c">#classify(&#39;a&#39;, &#39;a&#39;, True)</span>
+<span class="c">#stageTraining(r&#39;D:\school\ect584\final\Data\stage\test-extract_1.xls&#39;, r&#39;D:\school\ect584\final\Data\training\t_data.xls&#39;, .13)   </span>
+<span class="c">#runExtract(r&#39;D:\school\ect584\final\Data\raw&#39;, r&#39;D:\school\ect584\final\Data\stage&#39;)</span>
+
+<span class="c">#gen_sample(r&#39;D:\school\ect584\final\Data\stage\test-extract_2E.xls&#39;, r&#39;D:\school\ect584\final\Data\training\validation.xls&#39;, .07)</span>
+<span class="c">#cs.wait()</span>
+<span class="c">#training = cs.load(filename = r&#39;D:\school\ect584\final\Data\training\t_data.xls&#39;, format = &#39;excel&#39;)</span>
+<span class="c">#validation = cs.load(filename = r&#39;D:\school\ect584\final\Data\training\validation.xls&#39;, format = &#39;excel&#39;)</span>
+<span class="c">#cs.wait()</span>
+<span class="c">#t_data = {}</span>
+<span class="c">#for row in training:</span>
+<span class="c">#    t_data[row[&#39;path&#39;]] = 1</span>
+<span class="c">#for row in validation:</span>
+<span class="c">#    if row[&#39;path&#39;] in t_data:</span>
+<span class="c">#        print &#39;t&#39;</span>
+<span class="c">#        row.delete()</span>
+<span class="c">#        </span>
+<span class="c">#validation.save(filename = r&#39;D:\school\ect584\final\Data\training\validation.xls&#39;, format = &#39;excel&#39;, overwrite = True)</span>
+<span class="c">#runConvert(r&#39;D:\school\ect584\final\Data\raw&#39;, r&#39;D:\school\ect584\final\Data\stage&#39;)</span>
+<span class="c">#runSingleExtract(r&#39;D:\school\ect584\final\Data\raw&#39;, r&#39;D:\school\ect584\final\Data\stage\test&#39;)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">BM_email v.1 documentation</a> &raquo;</li>
+          <li><a href="index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Michael Jugovich.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

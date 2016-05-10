@@ -1,0 +1,19 @@
+@relation demo
+
+@attribute c {Yes,No}
+@attribute a string
+@attribute b numeric
+
+@data
+No,9,9
+Yes,8,8
+No,7,7
+Yes,6,6
+No,5,5
+Yes,4,4
+No,3,3
+Yes,2,2
+No,1,1
+Yes,0,0
+,2,
+,1,
